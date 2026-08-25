@@ -1,0 +1,56 @@
+# ─────────────────────────────────────────────
+#  SECRETOS — NUNCA subir al repo
+# ─────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*serviceAccount*.json          # credenciales Admin SDK de Firebase
+firebase-adminsdk*.json
+google-services.json           # config Firebase Android (contiene keys)
+GoogleService-Info.plist       # config Firebase iOS
+*.pem
+*.key
+
+# ─────────────────────────────────────────────
+#  Python / FastAPI (backend/)
+# ─────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.sqlite3
+*.db
+
+# ─────────────────────────────────────────────
+#  Flutter / Dart (mobile/)
+# ─────────────────────────────────────────────
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+**/doc/api/
+*.iml
+.idea/
+android/.gradle/
+android/local.properties
+android/key.properties
+*.jks
+*.keystore
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework/
+
+# ─────────────────────────────────────────────
+#  Editores / SO
+# ─────────────────────────────────────────────
+.vscode/
+.DS_Store
+Thumbs.db
