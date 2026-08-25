@@ -11,6 +11,7 @@ Universidad de Morón (Docente: Marcelo Camicha).
 
 - **Alumno:** Martiniano Hereñu
 - **Nombre app y repo (obligatorio que coincidan):** `ClubMartinianoHerenu`
+- **Repo GitHub:** https://github.com/Martiherenu1/ClubMartinianoHerenu (usuario: `Martiherenu1`)
 
 ## 2. Stack técnico (decidido)
 
@@ -46,7 +47,10 @@ Universidad de Morón (Docente: Marcelo Camicha).
 
 ## 5. Entregas (sin fechas confirmadas aún)
 
-1. **Entrega 1 — Diseño:** mockup + prototipo navegable en Figma. Defensa grupal.
+> **Entrega 1 (Figma) es GRUPAL** — la hace Martiniano con sus compañeros, más
+> adelante. El **backend y el desarrollo son INDIVIDUALES** y es el foco actual.
+
+1. **Entrega 1 — Diseño:** mockup + prototipo navegable en Figma. Defensa grupal. (diferido)
 2. **Entrega 2 — Desarrollo:** backend en la nube + app Flutter conectada,
    modelo de datos, ícono, auth completa, gestión de reservas, manejo de errores,
    demo en emulador. Se sube backend (ZIP) y app (ZIP) a Blackboard. Defensa individual.
@@ -61,18 +65,35 @@ Universidad de Morón (Docente: Marcelo Camicha).
 - [x] Estructura de carpetas creada
 - [x] Arquitectura documentada (ver `arquitectura.md`)
 - [x] Modelo de datos documentado (ver `modelo-datos.md`)
-- [ ] Diseño en Figma
+- [x] Repo GitHub creado y primer push (rama `main`)
+- [x] Proyecto Firebase creado + Auth Email/Password habilitado → **Hito 0 COMPLETO**
+- [ ] Backend FastAPI (EN CURSO — foco actual)
+- [ ] Diseño en Figma (GRUPAL, diferido)
 - [ ] Backend FastAPI
 - [ ] App Flutter
 - [ ] Deploy
 
-## 7. Próximos pasos inmediatos
+## 7. Estado del backend (Hito 2 en curso)
 
-1. Confirmar fechas de entrega.
-2. Empezar Entrega 1: diseño de pantallas en Figma (flujo de navegación).
-3. En paralelo se puede ir armando el esqueleto del backend FastAPI + modelo de datos.
+- [x] **Etapa 1 — Fundación:** estructura FastAPI, config por `.env`, conexión a
+  PostgreSQL (Docker, puerto **5433**), endpoints `/` y `/health`, Swagger OK.
+  Verificado: el servidor arranca y responde.
+  - Entorno: venv Python 3.13 en `backend/.venv`. Deps fijadas en `requirements.txt`.
+  - Base local: `docker compose up -d` → PostgreSQL 16 en `localhost:5433`
+    (usuario `club` / clave `clubpass` / base `clubdb`).
+  - ⚠️ Nota: esta máquina tiene un PostgreSQL nativo en el 5432; por eso el
+    contenedor usa el 5433.
+- [ ] **Etapa 2 — Modelos + migraciones** (Alembic): usuario, sede, espacio, reserva.
+- [ ] **Etapa 3 — Auth** (verificación de token Firebase) + endpoints.
+- [ ] **Etapa 4 — Lógica de reservas** (validaciones + solapamiento) + seed.
+- [ ] **Etapa 5 — Pruebas + deploy en Render.**
 
-## 8. Cómo colaboramos
+## 8. Próximos pasos inmediatos
+
+1. Etapa 2: definir los modelos SQLAlchemy y la primera migración con Alembic.
+2. (Pendiente) Confirmar fechas de entrega para armar cronograma.
+
+## 9. Cómo colaboramos
 
 - Este archivo (`CONTEXTO.md`) es la fuente de verdad del estado del proyecto.
 - Documentos de apoyo en `docs/`: `requerimientos.md`, `arquitectura.md`, `modelo-datos.md`, `plan.md`.

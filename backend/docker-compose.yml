@@ -1,0 +1,25 @@
+# PostgreSQL local para desarrollo.
+# Levantar:  docker compose up -d
+# Apagar:    docker compose down   (agregar -v para borrar también los datos)
+services:
+  db:
+    image: postgres:16
+    container_name: club_db
+    environment:
+      POSTGRES_USER: club
+      POSTGRES_PASSWORD: clubpass
+      POSTGRES_DB: clubdb
+    # Publicamos en 5433 en el host para no chocar con un PostgreSQL nativo
+    # que ya está usando el 5432 en esta máquina. Dentro del contenedor sigue en 5432.
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U club -d clubdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
