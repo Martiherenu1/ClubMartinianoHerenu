@@ -107,15 +107,18 @@ Detalle completo en `modelo-datos.md`, `arquitectura.md`, `plan.md` y `casos-de-
   notificación no duplicada). Migración `0024733bc0bd`.
 - [x] **Seed del catálogo** (`feat/seed`): 4 sedes y 22 canchas del Figma,
   idempotente (`python -m app.seed`). Algunos precios son estimados.
-- [ ] Auth con Firebase + formato de errores (`feat/auth-firebase`).
-- [ ] Usuarios, catálogo, disponibilidad (CU-12) y reservas.
-- [ ] Tests + deploy en Render.
+- [x] **Auth con Firebase + formato de errores + base de tests** (`feat/auth-firebase`).
+  Clave del Admin SDK en `backend/` (excluida por `.gitignore`), probada contra
+  Firebase real. Tests con `pytest` sobre la base `clubdb_test`.
+- [ ] Usuarios (`feat/usuarios`): registro, ver, editar y dar de baja el perfil.
+- [ ] Catálogo, disponibilidad (CU-12) y reservas.
+- [ ] Deploy en Render.
 
 ## 8. Próximos pasos inmediatos
 
-1. Martiniano revisa y mergea el PR `feat/seed`.
-2. `feat/auth-firebase`: verificación del token y `get_usuario_actual`. Necesita la
-   clave de servicio (JSON) del proyecto Firebase.
+1. Martiniano revisa y mergea los PRs `feat/seed` y `feat/auth-firebase`.
+2. `feat/usuarios`: registro vía API (crea la cuenta en Firebase), `GET/PUT/DELETE
+   /usuarios/me`.
 
 ## 9. Cómo colaboramos
 

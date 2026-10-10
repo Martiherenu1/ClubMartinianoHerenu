@@ -24,14 +24,22 @@ py -3.13 -m venv .venv
 .venv\Scripts\activate
 ```
 ```bash
-pip install -r requirements.txt
+pip install -r requirements-dev.txt
 ```
+(`requirements-dev.txt` incluye `requirements.txt` más las herramientas de tests.)
 
 ### 3. Configurar variables de entorno
 ```bash
 copy .env.example .env
 ```
-El `.env` ya viene apuntando a la base local del `docker-compose.yml`.
+El `.env` ya viene apuntando a la base local del `docker-compose.yml`. Falta la
+clave de Firebase:
+
+1. Firebase Console → tu proyecto → ⚙ **Configuración del proyecto** →
+   **Cuentas de servicio** → **Generar nueva clave privada**.
+2. Guardar el `.json` descargado en esta carpeta (`backend/`). **Es secreto**:
+   `.gitignore` lo excluye (`*firebase-adminsdk*.json`).
+3. En `.env`, poner su nombre en `FIREBASE_CREDENTIALS`.
 
 ### 4. Crear las tablas (migraciones con Alembic)
 ```bash
@@ -68,6 +76,9 @@ backend/
 │   │   └── session.py     # engine + sesiones + dependencia get_db
 │   ├── models/            # tablas: usuario, sede, espacio_deportivo, reserva,
 │   │                      #   dispositivo, notificacion (ver docs/modelo-datos.md)
+│   ├── core/firebase.py   # Admin SDK: verificación de tokens
+│   ├── core/errores.py    # formato único de errores
+│   ├── api/deps.py        # get_uid_autenticado, get_usuario_actual
 │   ├── services/          # lógica de negocio (nombres compuestos, …)
 │   ├── seed.py            # carga del catálogo de sedes y canchas
 │   ├── schemas/           # esquemas Pydantic (próxima etapa)
@@ -86,6 +97,36 @@ backend/
 | `DATABASE_URL`        | Conexión a PostgreSQL (formato SQLAlchemy).                |
 | `FIREBASE_CREDENTIALS`| Ruta al JSON de la cuenta de servicio de Firebase (Auth).  |
 | `ENVIRONMENT`         | `development` o `production`.                              |
+
+## Tests
+
+Con la base de Docker levantada:
+
+```bash
+pytest
+```
+
+- Usan una base aparte, `clubdb_test`, que se crea sola y recibe las mismas
+  migraciones. **No tocan** los datos de `clubdb`.
+- Cada test corre en una transacción que se deshace al terminar.
+- Firebase se simula: el token `token-<uid>` vale para ese uid. Los tests de
+  `test_firebase_real.py` sí van contra Firebase (necesitan la clave e internet) y
+  se saltean si no hay `FIREBASE_CREDENTIALS`.
+
+## Autenticación
+
+Cada request protegido lleva `Authorization: Bearer <ID token de Firebase>`.
+`app/api/deps.py` lo verifica con el Admin SDK y obtiene el usuario:
+
+| Situación | Respuesta |
+|---|---|
+| Sin header o token inválido | 401 `NO_AUTENTICADO` |
+| Token vencido | 401 `NO_AUTENTICADO` ("Tu sesión expiró…") |
+| Token válido pero sin perfil en la base | 404 `PERFIL_NO_ENCONTRADO` |
+| Cuenta dada de baja | 401 `NO_AUTENTICADO` |
+
+Todos los errores de la API tienen la forma
+`{"error": {"codigo": "...", "mensaje": "..."}}` (`app/core/errores.py`).
 
 ## Migraciones (Alembic)
 
