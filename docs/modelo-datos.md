@@ -87,8 +87,11 @@ erDiagram
 - `firebase_uid` vincula el token que llega en cada request con la fila del usuario.
 - `dni` es único: el CU-03 pide rechazar el registro si el email **o el DNI** ya existen.
 - `email` no se puede editar (requisito del TP y CU-06).
-- Dar la cuenta de baja (CU-07) marca `activo = false`, borra el usuario de Firebase
-  y cancela sus reservas futuras. No se borra la fila para no perder el historial.
+- Dar la cuenta de baja (CU-07): cancela sus reservas futuras, borra sus dispositivos,
+  borra la cuenta de Firebase, marca `activo = false` y **anonimiza** email, DNI y uid
+  (`baja-<id>`). La fila y las reservas pasadas quedan para no dejar huecos en el
+  historial, pero sin datos personales, y la persona puede volver a registrarse con
+  el mismo email y DNI.
 
 ### sede
 - Datos mínimos del TP: nombre, dirección y horario de funcionamiento.

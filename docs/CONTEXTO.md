@@ -110,15 +110,18 @@ Detalle completo en `modelo-datos.md`, `arquitectura.md`, `plan.md` y `casos-de-
 - [x] **Auth con Firebase + formato de errores + base de tests** (`feat/auth-firebase`).
   Clave del Admin SDK en `backend/` (excluida por `.gitignore`), probada contra
   Firebase real. Tests con `pytest` sobre la base `clubdb_test`.
-- [ ] Usuarios (`feat/usuarios`): registro, ver, editar y dar de baja el perfil.
-- [ ] Catálogo, disponibilidad (CU-12) y reservas.
+- [x] **Usuarios** (`feat/usuarios`): registro vía API (crea la cuenta en Firebase y
+  la borra si falla el perfil), ver, editar y dar de baja (anonimiza), dispositivos
+  para push. Probado también contra Firebase real. Zona horaria de Argentina en
+  `core/tiempo.py`.
+- [ ] Catálogo (`feat/catalogo`): sedes y espacios con filtros.
+- [ ] Disponibilidad (CU-12) y reservas.
 - [ ] Deploy en Render.
 
 ## 8. Próximos pasos inmediatos
 
-1. Martiniano revisa y mergea los PRs `feat/seed` y `feat/auth-firebase`.
-2. `feat/usuarios`: registro vía API (crea la cuenta en Firebase), `GET/PUT/DELETE
-   /usuarios/me`.
+1. Martiniano mergea el PR `feat/usuarios`.
+2. `feat/catalogo`: `GET /sedes`, `GET /sedes/{id}`, `GET /espacios` con filtros.
 
 ## 9. Cómo colaboramos
 

@@ -113,6 +113,20 @@ pytest
   `test_firebase_real.py` sí van contra Firebase (necesitan la clave e internet) y
   se saltean si no hay `FIREBASE_CREDENTIALS`.
 
+## Endpoints implementados
+
+Documentación interactiva completa en `/docs` (Swagger). Para probar los
+protegidos: botón **Authorize** → pegar el ID token de Firebase.
+
+| Método | Ruta | Auth | CU | Qué hace |
+|---|---|---|---|---|
+| POST | `/api/v1/usuarios` | — | 03 | Registro: crea la cuenta en Firebase + perfil. 409 si el email o el DNI ya existen. |
+| GET | `/api/v1/usuarios/me` | ✔ | 05 | Perfil del usuario autenticado. |
+| PUT | `/api/v1/usuarios/me` | ✔ | 06 | Edita nombre, apellido, DNI y fecha de nacimiento (no el email). |
+| DELETE | `/api/v1/usuarios/me` | ✔ | 07 | Baja: cancela reservas futuras, borra la cuenta de Firebase y anonimiza el perfil. |
+| POST | `/api/v1/usuarios/me/dispositivos` | ✔ | 24 | Registra el token de push del celular. |
+| DELETE | `/api/v1/usuarios/me/dispositivos/{token}` | ✔ | 02 | Lo quita al cerrar sesión. |
+
 ## Autenticación
 
 Cada request protegido lleva `Authorization: Bearer <ID token de Firebase>`.
