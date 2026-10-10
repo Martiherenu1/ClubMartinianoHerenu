@@ -4,10 +4,13 @@
 .env
 .env.*
 !.env.example
-*serviceAccount*.json          # credenciales Admin SDK de Firebase
-firebase-adminsdk*.json
-google-services.json           # config Firebase Android (contiene keys)
-GoogleService-Info.plist       # config Firebase iOS
+# (git no admite comentarios al final de una regla: van en su propia línea)
+# Credenciales del Admin SDK de Firebase (ej. clubx-firebase-adminsdk-fbsvc-123.json)
+*serviceAccount*.json
+*firebase-adminsdk*.json
+# Config de Firebase para Android / iOS
+google-services.json
+GoogleService-Info.plist
 *.pem
 *.key
 
