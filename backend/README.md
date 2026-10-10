@@ -33,7 +33,14 @@ copy .env.example .env
 ```
 El `.env` ya viene apuntando a la base local del `docker-compose.yml`.
 
-### 4. Ejecutar el servidor
+### 4. Crear las tablas (migraciones con Alembic)
+```bash
+alembic upgrade head
+```
+Aplica todas las migraciones de `alembic/versions/` y deja la base con el esquema
+actual. Se corre la primera vez y cada vez que se agrega una migración nueva.
+
+### 5. Ejecutar el servidor
 ```bash
 uvicorn app.main:app --reload
 ```
@@ -52,9 +59,12 @@ backend/
 │   ├── db/
 │   │   ├── base.py        # Base declarativa de SQLAlchemy
 │   │   └── session.py     # engine + sesiones + dependencia get_db
-│   ├── models/            # tablas (próxima etapa)
+│   ├── models/            # tablas: usuario, sede, espacio_deportivo, reserva,
+│   │                      #   dispositivo, notificacion (ver docs/modelo-datos.md)
 │   ├── schemas/           # esquemas Pydantic (próxima etapa)
 │   └── api/               # routers de negocio (próxima etapa)
+├── alembic/               # migraciones (versions/ = historial del esquema)
+├── alembic.ini            # configuración de Alembic (la URL sale del .env)
 ├── docker-compose.yml     # PostgreSQL local
 ├── requirements.txt
 └── .env.example
@@ -67,6 +77,26 @@ backend/
 | `DATABASE_URL`        | Conexión a PostgreSQL (formato SQLAlchemy).                |
 | `FIREBASE_CREDENTIALS`| Ruta al JSON de la cuenta de servicio de Firebase (Auth).  |
 | `ENVIRONMENT`         | `development` o `production`.                              |
+
+## Migraciones (Alembic)
+
+Cuando se cambia un modelo en `app/models/`:
+
+```bash
+alembic revision --autogenerate -m "descripcion del cambio"
+```
+Genera un archivo nuevo en `alembic/versions/`. **Revisarlo** antes de aplicarlo y
+después correr `alembic upgrade head`.
+
+```bash
+alembic check
+```
+Verifica que los modelos y la base estén sincronizados (no falta ninguna migración).
+
+```bash
+alembic downgrade -1
+```
+Deshace la última migración.
 
 ## Comandos útiles de la base
 

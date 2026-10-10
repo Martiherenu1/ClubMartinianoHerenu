@@ -12,16 +12,17 @@ Universidad de Morón (Docente: Marcelo Camicha).
 - **Alumno:** Martiniano Hereñu
 - **Nombre app y repo (obligatorio que coincidan):** `ClubMartinianoHerenu`
 - **Repo GitHub:** https://github.com/Martiherenu1/ClubMartinianoHerenu (usuario: `Martiherenu1`)
-- **Clon local:** `...\Facultad\2026\2DO CUATRI\Electiva General\ClubMartinianoHerenu`
+- **Clon local:** `C:\dev\ClubMartinianoHerenu` (fuera de OneDrive y con ruta corta:
+  OneDrive bloquea los archivos de compilación y Windows limita las rutas a 260 caracteres).
 - **Caso de uso asignado (Entrega 1):** CU-12 "Consultar horarios disponibles".
 
 ## 2. Stack técnico (decidido)
 
 | Capa            | Tecnología                          | Estado        |
 |-----------------|-------------------------------------|---------------|
-| App móvil       | Flutter                             | Por empezar (SDK sin instalar) |
+| App móvil       | Flutter 3.47 (SDK en `C:\dev\flutter`) | Entorno listo, app por empezar |
 | Diseño UX/UI    | Figma grupal                        | **Terminado** (Entrega 1) |
-| Backend / API   | FastAPI (Python) + SQLAlchemy + Alembic | Etapa 1 hecha |
+| Backend / API   | FastAPI (Python) + SQLAlchemy + Alembic | Modelos y migración inicial |
 | Base de datos   | PostgreSQL                          | Local en Docker |
 | Auth            | Firebase Authentication (email/password + reset) | Proyecto creado |
 | Push            | Firebase Cloud Messaging (FCM)      | **Dentro del alcance** |
@@ -83,10 +84,10 @@ Detalle completo en `modelo-datos.md`, `arquitectura.md`, `plan.md` y `casos-de-
 - [x] Repo GitHub creado y primer push (rama `main`)
 - [x] Proyecto Firebase creado + Auth Email/Password habilitado → **Hito 0 COMPLETO**
 - [x] Diseño en Figma (grupal) → Entrega 1 terminada
-- [ ] **Planificación de la Entrega 2 (EN CURSO)**: leer todas las specs del grupo,
-      rehacer modelo de datos y endpoints según el Figma.
-- [ ] Backend FastAPI (Etapa 1 hecha, resto pendiente)
-- [ ] Entorno Flutter (instalar SDK + Android Studio + emulador)
+- [x] Planificación de la Entrega 2 → PR #1, tag `v0.1.0`
+- [x] Entorno Flutter: SDK 3.47 + Android Studio + emulador `Medium_Phone_API_37.0`
+      (Google Play), probado con una app de ejemplo
+- [ ] **Backend FastAPI (Fase 1, EN CURSO)**
 - [ ] App Flutter
 - [ ] Notificaciones push
 - [ ] Deploy
@@ -100,19 +101,20 @@ Detalle completo en `modelo-datos.md`, `arquitectura.md`, `plan.md` y `casos-de-
     (usuario `club` / clave `clubpass` / base `clubdb`).
   - ⚠️ Nota: esta máquina tiene un PostgreSQL nativo en el 5432; por eso el
     contenedor usa el 5433.
-- [ ] **Etapa 2 — Modelos + migraciones** (Alembic) — *esperar al nuevo modelo de datos.*
-- [ ] **Etapa 3 — Auth** (verificación de token Firebase) + endpoints.
-- [ ] **Etapa 4 — Lógica de reservas** (validaciones + solapamiento) + seed.
-- [ ] **Etapa 5 — Pruebas + deploy en Render.**
+- [x] **Modelos + migración inicial** (`feat/modelos`): 6 tablas (usuario, sede,
+  espacio_deportivo, reserva, dispositivo, notificacion) con restricciones en la
+  base (horas completas, fin > inicio, estados válidos, DNI y cancha únicos,
+  notificación no duplicada). Migración `0024733bc0bd`.
+- [ ] Seed del catálogo del Figma (`feat/seed`).
+- [ ] Auth con Firebase + formato de errores (`feat/auth-firebase`).
+- [ ] Usuarios, catálogo, disponibilidad (CU-12) y reservas.
+- [ ] Tests + deploy en Render.
 
 ## 8. Próximos pasos inmediatos
 
-1. ✅ Specs del grupo leídas (faltan CU-07 y CU-20 en la descarga; CU-04, 11 y 22 no
-   están en el Drive).
-2. ✅ Borradores nuevos de `modelo-datos.md`, `arquitectura.md`, `plan.md`,
-   `casos-de-uso.md` (sin commitear).
-3. Martiniano revisa el plan → primer PR `docs/plan-entrega-2`.
-4. Fase 0: instalar Flutter + Android Studio + emulador y GitHub CLI.
+1. Martiniano revisa y mergea el PR `feat/modelos`.
+2. `feat/seed`: cargar las 4 sedes y sus canchas tal como están en el Figma.
+3. `feat/auth-firebase`: verificación del token y `get_usuario_actual`.
 
 ## 9. Cómo colaboramos
 
