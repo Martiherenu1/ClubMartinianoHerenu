@@ -131,6 +131,7 @@ protegidos: botón **Authorize** → pegar el ID token de Firebase.
 | GET | `/api/v1/espacios` | ✔ | 13, 20 | Canchas; filtros combinables `?sede_id=&deporte=&tipo=`. |
 | GET | `/api/v1/espacios/{id}` | ✔ | 16 | Una cancha (404 si no existe o está inactiva). |
 | GET | `/api/v1/deportes` | ✔ | 20 | Deportes y sus tipos, para los chips de filtro. |
+| GET | `/api/v1/espacios/{id}/disponibilidad` | ✔ | **12** | Grilla de horarios de un día: `?fecha=AAAA-MM-DD&duracion=1\|2`. Ver `docs/cu-12-disponibilidad.md`. |
 
 ## Autenticación
 

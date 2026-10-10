@@ -117,14 +117,17 @@ Detalle completo en `modelo-datos.md`, `arquitectura.md`, `plan.md` y `casos-de-
 - [x] **Catálogo** (`feat/catalogo`): `/sedes`, `/sedes/{id}`, `/espacios` con
   filtros, `/espacios/{id}` y `/deportes`. Solo muestra sedes y canchas activas;
   tipos en orden natural (F5, F7, F11).
-- [ ] Disponibilidad (CU-12, `feat/disponibilidad`).
+- [x] **Disponibilidad — CU-12 de Martiniano** (`feat/disponibilidad`):
+  `GET /espacios/{id}/disponibilidad?fecha=&duracion=`. Algoritmo explicado en
+  `docs/cu-12-disponibilidad.md` (para la defensa).
 - [ ] Reservas (`feat/reservas`).
 - [ ] Deploy en Render.
 
 ## 8. Próximos pasos inmediatos
 
-1. Martiniano mergea el PR `feat/catalogo`.
-2. `feat/disponibilidad`: `GET /espacios/{id}/disponibilidad?fecha=&duracion=` (CU-12).
+1. Martiniano mergea el PR `feat/disponibilidad`.
+2. `feat/reservas`: crear (CU-09), listar próximas/historial (CU-08), detalle y
+   cancelar (CU-10), reutilizando `calcular_franjas` / `se_superponen`.
 
 ## 9. Cómo colaboramos
 
