@@ -175,6 +175,18 @@ No se guarda: se **calcula** en cada consulta para un espacio, una fecha y una d
 
 ## Datos semilla (seed)
 
-Script que carga las 4 sedes y sus canchas tal como aparecen en el Figma, con
-precios. Por ejemplo, la sede Morón tiene Fútbol F5 Cancha 1 y 2, F7 y F11, y
-Tenis polvo de ladrillo y cemento.
+`backend/app/seed.py` (`python -m app.seed`) carga el catálogo del Figma:
+**4 sedes y 22 canchas**, igual que la pantalla "Todas las sedes".
+
+| Sede | Dirección | Horario | Canchas |
+|---|---|---|---|
+| Morón | Av. Rivadavia 17500 | 08–23 | Fútbol F5 ×2 (1 outdoor, 2 indoor), F7, F11 · Tenis polvo de ladrillo ×2, cemento |
+| Ramos Mejía | Calle Belgrano 1240 | 09–22 | Fútbol F5, F11 · Hockey H7 · Vóley indoor parquet |
+| San Justo | Av. Casanova 320 | 08–23 | Fútbol F5 ×2, F8 · Tenis sintético · Golf driving range, 9 hoyos |
+| Castelar | Av. Rivadavia 22500 | 08–23 | Tenis polvo de ladrillo, cemento · Vóley playa, indoor parquet · Hockey H11 |
+
+Los precios que muestra el Figma ($3.800 F5, $8.000 F11, $2.500 y $2.700 tenis)
+se respetan; los demás y el horario de San Justo son estimados (marcados en el código).
+
+El nombre compuesto lo genera `app/services/nombres.py` con el formato del TP más el
+deporte: `Moron_Rivadavia_17500_Futbol_F5_1`.

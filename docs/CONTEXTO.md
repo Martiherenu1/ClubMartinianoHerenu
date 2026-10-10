@@ -105,16 +105,17 @@ Detalle completo en `modelo-datos.md`, `arquitectura.md`, `plan.md` y `casos-de-
   espacio_deportivo, reserva, dispositivo, notificacion) con restricciones en la
   base (horas completas, fin > inicio, estados válidos, DNI y cancha únicos,
   notificación no duplicada). Migración `0024733bc0bd`.
-- [ ] Seed del catálogo del Figma (`feat/seed`).
+- [x] **Seed del catálogo** (`feat/seed`): 4 sedes y 22 canchas del Figma,
+  idempotente (`python -m app.seed`). Algunos precios son estimados.
 - [ ] Auth con Firebase + formato de errores (`feat/auth-firebase`).
 - [ ] Usuarios, catálogo, disponibilidad (CU-12) y reservas.
 - [ ] Tests + deploy en Render.
 
 ## 8. Próximos pasos inmediatos
 
-1. Martiniano revisa y mergea el PR `feat/modelos`.
-2. `feat/seed`: cargar las 4 sedes y sus canchas tal como están en el Figma.
-3. `feat/auth-firebase`: verificación del token y `get_usuario_actual`.
+1. Martiniano revisa y mergea el PR `feat/seed`.
+2. `feat/auth-firebase`: verificación del token y `get_usuario_actual`. Necesita la
+   clave de servicio (JSON) del proyecto Firebase.
 
 ## 9. Cómo colaboramos
 
