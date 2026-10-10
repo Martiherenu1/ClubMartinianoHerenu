@@ -40,7 +40,14 @@ alembic upgrade head
 Aplica todas las migraciones de `alembic/versions/` y deja la base con el esquema
 actual. Se corre la primera vez y cada vez que se agrega una migración nueva.
 
-### 5. Ejecutar el servidor
+### 5. Cargar el catálogo (sedes y canchas)
+```bash
+python -m app.seed
+```
+Carga las 4 sedes y las 22 canchas del Figma. Se puede correr las veces que haga
+falta: actualiza lo existente y no duplica.
+
+### 6. Ejecutar el servidor
 ```bash
 uvicorn app.main:app --reload
 ```
@@ -61,6 +68,8 @@ backend/
 │   │   └── session.py     # engine + sesiones + dependencia get_db
 │   ├── models/            # tablas: usuario, sede, espacio_deportivo, reserva,
 │   │                      #   dispositivo, notificacion (ver docs/modelo-datos.md)
+│   ├── services/          # lógica de negocio (nombres compuestos, …)
+│   ├── seed.py            # carga del catálogo de sedes y canchas
 │   ├── schemas/           # esquemas Pydantic (próxima etapa)
 │   └── api/               # routers de negocio (próxima etapa)
 ├── alembic/               # migraciones (versions/ = historial del esquema)
