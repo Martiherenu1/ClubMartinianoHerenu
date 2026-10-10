@@ -10,16 +10,21 @@ Documentación interactiva (Swagger): http://localhost:8000/docs
 """
 from fastapi import FastAPI
 
+from app.api.router import api_router
 from app.core.config import settings
 from app.core.errores import registrar_manejadores_de_error
 
 app = FastAPI(
     title="ClubMartinianoHerenu API",
-    description="API REST para la gestión de reservas de espacios deportivos.",
+    description=(
+        "API REST para la gestión de reservas de espacios deportivos.\n\n"
+        "Los endpoints protegidos requieren `Authorization: Bearer <ID token de Firebase>`."
+    ),
     version="0.1.0",
 )
 
 registrar_manejadores_de_error(app)
+app.include_router(api_router)
 
 
 @app.get("/", tags=["health"])
