@@ -1,7 +1,7 @@
 # CONTEXTO DEL PROYECTO — ClubMartinianoHerenu
 
 > Archivo central de contexto. Se actualiza en cada sesión de trabajo.
-> Última actualización: 2026-08-25
+> Última actualización: 2026-10-10
 
 ## 1. Qué es
 
@@ -12,86 +12,107 @@ Universidad de Morón (Docente: Marcelo Camicha).
 - **Alumno:** Martiniano Hereñu
 - **Nombre app y repo (obligatorio que coincidan):** `ClubMartinianoHerenu`
 - **Repo GitHub:** https://github.com/Martiherenu1/ClubMartinianoHerenu (usuario: `Martiherenu1`)
+- **Clon local:** `...\Facultad\2026\2DO CUATRI\Electiva General\ClubMartinianoHerenu`
+- **Caso de uso asignado (Entrega 1):** CU-12 "Consultar horarios disponibles".
 
 ## 2. Stack técnico (decidido)
 
 | Capa            | Tecnología                          | Estado        |
 |-----------------|-------------------------------------|---------------|
-| App móvil       | Flutter                             | Por empezar   |
-| Diseño UX/UI    | Figma                               | Por empezar   |
-| Backend / API   | FastAPI (Python) + SQLAlchemy + Alembic | Por empezar |
-| Base de datos   | PostgreSQL                          | Por empezar   |
-| Auth            | Firebase Authentication (email/password + reset) | Por empezar |
-| Push            | Firebase Cloud Messaging (FCM)      | **EN REPOSO** |
+| App móvil       | Flutter                             | Por empezar (SDK sin instalar) |
+| Diseño UX/UI    | Figma grupal                        | **Terminado** (Entrega 1) |
+| Backend / API   | FastAPI (Python) + SQLAlchemy + Alembic | Etapa 1 hecha |
+| Base de datos   | PostgreSQL                          | Local en Docker |
+| Auth            | Firebase Authentication (email/password + reset) | Proyecto creado |
+| Push            | Firebase Cloud Messaging (FCM)      | **Dentro del alcance** |
 | Deploy API+DB   | Render                              | Por empezar   |
 | Docs API        | Swagger / OpenAPI (auto por FastAPI)| Automático    |
 
 ## 3. Decisiones tomadas
 
-- **Un solo rol de usuario.** El enunciado no pide admin ni administrador de
-  sede. Sedes y espacios se cargan como datos semilla (seed), no hay ABM en la app.
-- **Sin pagos ni precios.** El enunciado no menciona dinero. Las reservas son gratuitas.
-- **Cancelación libre**, sin restricción horaria (el enunciado no la pide).
+### Vigentes (2026-10-10, fase Entrega 2)
+- **Alcance de la app = todo el lado usuario:** auth (login, registro, recuperar
+  contraseña), home, sedes, espacios con filtro por tipo, consulta de horarios
+  (CU-12), reservar, mis reservas, historial, cancelar, perfil (ver/editar/cerrar
+  sesión). **Sin panel de administración**: sedes y espacios se cargan por seed.
+- **Notificaciones push incluidas en el plan** (FCM, recordatorio de reservas próximas).
+- **El diseño a implementar es el Figma grupal** y las especificaciones de CU del
+  grupo (Drive). Las decisiones de agosto que chocan con el Figma se revisan (ver abajo).
 - **Monorepo** `ClubMartinianoHerenu/` con `backend/` y `mobile/` separados
   (se pueden zipear por separado para Blackboard).
-- **FastAPI** en vez de Django REST (más liviano, Swagger automático).
-- **Notificaciones push pospuestas**: se dejan previstas en la arquitectura
-  pero no se desarrollan hasta definirlo.
+- **FastAPI** en vez de Flask/Django (más liviano, Swagger automático).
+
+- **Precio informativo** (confirmado 2026-10-10): precio por hora en cada cancha y
+  total en la reserva, sin pagos.
+- **Un solo rol** (usuario). El panel de admin del Figma queda fuera de alcance.
+- **Git: GitHub Flow con PRs** (exigido): rama por funcionalidad → Pull Request →
+  merge a `main`. Tags SemVer por fase. Claude crea ramas, commits y PRs con `gh`;
+  **Martiniano revisa y mergea cada PR**.
+- **Sin "Modificar reserva" (CU-11)**: se cancela y se reserva de nuevo.
+- **Con "Cambiar contraseña" (CU-04)** desde la fila "Seguridad" del perfil (Firebase).
+- **Registro vía API** (valida email y DNI duplicados, crea el usuario en Firebase
+  con Admin SDK). Login, recuperar y cambiar contraseña: directo con Firebase.
+- **Recordatorios push con cron de GitHub Actions** (Render gratis se duerme).
+- **Cancelación:** solo reservas propias, confirmadas y que no hayan empezado (CU-10).
+
+Detalle completo en `modelo-datos.md`, `arquitectura.md`, `plan.md` y `casos-de-uso.md`.
 
 ## 4. Perfil del alumno (para calibrar el acompañamiento)
 
-- **Flutter:** primera vez. → Explicar en detalle, paso a paso.
+- **Flutter:** primera vez, y **todavía no está instalado** (SDK, Android Studio y
+  emulador). Explicar paso a paso.
 - **Python:** experiencia con ayuda de IA. → Ritmo intermedio.
 - **SQL:** experiencia con ayuda de IA. → Ritmo intermedio.
-- Tiene cuenta de **GitHub** y **Render**. **No** tiene Firebase (armar de cero).
+- Tiene cuenta de **GitHub**, **Render** y proyecto **Firebase** creado.
 
-## 5. Entregas (sin fechas confirmadas aún)
+## 5. Entregas
 
-> **Entrega 1 (Figma) es GRUPAL** — la hace Martiniano con sus compañeros, más
-> adelante. El **backend y el desarrollo son INDIVIDUALES** y es el foco actual.
+1. **Entrega 1 — Diseño:** ✅ hecha (Figma grupal + especificación CU-12 + defensa).
+2. **Entrega 2 — Desarrollo (INDIVIDUAL, defensa individual):** backend en la nube
+   + app Flutter conectada, modelo de datos, ícono, auth completa, gestión de
+   reservas, manejo de errores, demo en emulador. Se sube backend (ZIP) y app (ZIP)
+   a Blackboard antes de la exposición.
 
-1. **Entrega 1 — Diseño:** mockup + prototipo navegable en Figma. Defensa grupal. (diferido)
-2. **Entrega 2 — Desarrollo:** backend en la nube + app Flutter conectada,
-   modelo de datos, ícono, auth completa, gestión de reservas, manejo de errores,
-   demo en emulador. Se sube backend (ZIP) y app (ZIP) a Blackboard. Defensa individual.
-
-> ⚠️ PENDIENTE: confirmar fechas de Entrega 1 y Entrega 2 → convertir el plan por
-> hitos en un cronograma con fechas.
+> **Fecha límite Entrega 2: antes del 03/11/2026.** Cronograma en `plan.md`.
 
 ## 6. Estado actual
 
 - [x] Requerimientos analizados (ver `requerimientos.md`)
 - [x] Stack definido
 - [x] Estructura de carpetas creada
-- [x] Arquitectura documentada (ver `arquitectura.md`)
-- [x] Modelo de datos documentado (ver `modelo-datos.md`)
 - [x] Repo GitHub creado y primer push (rama `main`)
 - [x] Proyecto Firebase creado + Auth Email/Password habilitado → **Hito 0 COMPLETO**
-- [ ] Backend FastAPI (EN CURSO — foco actual)
-- [ ] Diseño en Figma (GRUPAL, diferido)
-- [ ] Backend FastAPI
+- [x] Diseño en Figma (grupal) → Entrega 1 terminada
+- [ ] **Planificación de la Entrega 2 (EN CURSO)**: leer todas las specs del grupo,
+      rehacer modelo de datos y endpoints según el Figma.
+- [ ] Backend FastAPI (Etapa 1 hecha, resto pendiente)
+- [ ] Entorno Flutter (instalar SDK + Android Studio + emulador)
 - [ ] App Flutter
+- [ ] Notificaciones push
 - [ ] Deploy
 
-## 7. Estado del backend (Hito 2 en curso)
+## 7. Estado del backend
 
 - [x] **Etapa 1 — Fundación:** estructura FastAPI, config por `.env`, conexión a
   PostgreSQL (Docker, puerto **5433**), endpoints `/` y `/health`, Swagger OK.
-  Verificado: el servidor arranca y responde.
   - Entorno: venv Python 3.13 en `backend/.venv`. Deps fijadas en `requirements.txt`.
   - Base local: `docker compose up -d` → PostgreSQL 16 en `localhost:5433`
     (usuario `club` / clave `clubpass` / base `clubdb`).
   - ⚠️ Nota: esta máquina tiene un PostgreSQL nativo en el 5432; por eso el
     contenedor usa el 5433.
-- [ ] **Etapa 2 — Modelos + migraciones** (Alembic): usuario, sede, espacio, reserva.
+- [ ] **Etapa 2 — Modelos + migraciones** (Alembic) — *esperar al nuevo modelo de datos.*
 - [ ] **Etapa 3 — Auth** (verificación de token Firebase) + endpoints.
 - [ ] **Etapa 4 — Lógica de reservas** (validaciones + solapamiento) + seed.
 - [ ] **Etapa 5 — Pruebas + deploy en Render.**
 
 ## 8. Próximos pasos inmediatos
 
-1. Etapa 2: definir los modelos SQLAlchemy y la primera migración con Alembic.
-2. (Pendiente) Confirmar fechas de entrega para armar cronograma.
+1. ✅ Specs del grupo leídas (faltan CU-07 y CU-20 en la descarga; CU-04, 11 y 22 no
+   están en el Drive).
+2. ✅ Borradores nuevos de `modelo-datos.md`, `arquitectura.md`, `plan.md`,
+   `casos-de-uso.md` (sin commitear).
+3. Martiniano revisa el plan → primer PR `docs/plan-entrega-2`.
+4. Fase 0: instalar Flutter + Android Studio + emulador y GitHub CLI.
 
 ## 9. Cómo colaboramos
 
