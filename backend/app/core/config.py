@@ -11,7 +11,9 @@ class Settings(BaseSettings):
     # Conexión a la base de datos (formato SQLAlchemy).
     DATABASE_URL: str
 
-    # Ruta al JSON de credenciales del Admin SDK de Firebase (se usa en Auth).
+    # Credenciales del Admin SDK de Firebase. Acepta dos formas:
+    # - la ruta al archivo JSON (desarrollo local), o
+    # - el contenido completo del JSON (Render, como variable de entorno secreta).
     FIREBASE_CREDENTIALS: str = ""
 
     # development | production
