@@ -126,6 +126,11 @@ protegidos: botón **Authorize** → pegar el ID token de Firebase.
 | DELETE | `/api/v1/usuarios/me` | ✔ | 07 | Baja: cancela reservas futuras, borra la cuenta de Firebase y anonimiza el perfil. |
 | POST | `/api/v1/usuarios/me/dispositivos` | ✔ | 24 | Registra el token de push del celular. |
 | DELETE | `/api/v1/usuarios/me/dispositivos/{token}` | ✔ | 02 | Lo quita al cerrar sesión. |
+| GET | `/api/v1/sedes` | ✔ | 16 | Sedes con dirección, horario, cantidad de canchas y deportes. `?deporte=` filtra. |
+| GET | `/api/v1/sedes/{id}` | ✔ | 16 | Una sede. |
+| GET | `/api/v1/espacios` | ✔ | 13, 20 | Canchas; filtros combinables `?sede_id=&deporte=&tipo=`. |
+| GET | `/api/v1/espacios/{id}` | ✔ | 16 | Una cancha (404 si no existe o está inactiva). |
+| GET | `/api/v1/deportes` | ✔ | 20 | Deportes y sus tipos, para los chips de filtro. |
 
 ## Autenticación
 

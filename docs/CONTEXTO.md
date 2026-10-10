@@ -114,14 +114,17 @@ Detalle completo en `modelo-datos.md`, `arquitectura.md`, `plan.md` y `casos-de-
   la borra si falla el perfil), ver, editar y dar de baja (anonimiza), dispositivos
   para push. Probado también contra Firebase real. Zona horaria de Argentina en
   `core/tiempo.py`.
-- [ ] Catálogo (`feat/catalogo`): sedes y espacios con filtros.
-- [ ] Disponibilidad (CU-12) y reservas.
+- [x] **Catálogo** (`feat/catalogo`): `/sedes`, `/sedes/{id}`, `/espacios` con
+  filtros, `/espacios/{id}` y `/deportes`. Solo muestra sedes y canchas activas;
+  tipos en orden natural (F5, F7, F11).
+- [ ] Disponibilidad (CU-12, `feat/disponibilidad`).
+- [ ] Reservas (`feat/reservas`).
 - [ ] Deploy en Render.
 
 ## 8. Próximos pasos inmediatos
 
-1. Martiniano mergea el PR `feat/usuarios`.
-2. `feat/catalogo`: `GET /sedes`, `GET /sedes/{id}`, `GET /espacios` con filtros.
+1. Martiniano mergea el PR `feat/catalogo`.
+2. `feat/disponibilidad`: `GET /espacios/{id}/disponibilidad?fecha=&duracion=` (CU-12).
 
 ## 9. Cómo colaboramos
 
