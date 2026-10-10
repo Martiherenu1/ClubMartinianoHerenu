@@ -42,3 +42,25 @@ def verificar_id_token(token: str) -> dict:
     return auth.verify_id_token(
         token, app=obtener_app_firebase(), clock_skew_seconds=10
     )
+
+
+def crear_usuario(email: str, password: str, nombre_visible: str) -> str:
+    """Crea la cuenta en Firebase Authentication y devuelve su uid.
+
+    Lanza `auth.EmailAlreadyExistsError` si el email ya tiene cuenta.
+    """
+    usuario = auth.create_user(
+        email=email,
+        password=password,
+        display_name=nombre_visible,
+        app=obtener_app_firebase(),
+    )
+    return usuario.uid
+
+
+def eliminar_usuario(uid: str) -> None:
+    """Borra la cuenta de Firebase. Si ya no existía, no hace nada."""
+    try:
+        auth.delete_user(uid, app=obtener_app_firebase())
+    except auth.UserNotFoundError:
+        pass

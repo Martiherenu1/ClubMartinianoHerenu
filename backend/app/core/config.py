@@ -19,6 +19,10 @@ class Settings(BaseSettings):
     # development | production
     ENVIRONMENT: str = "development"
 
+    # Zona horaria del club. Render corre en UTC: sin esto, desde las 21 h la API
+    # pensaría que ya es el día siguiente.
+    ZONA_HORARIA: str = "America/Argentina/Buenos_Aires"
+
     # Lee automáticamente el archivo .env ubicado en la carpeta backend/.
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
