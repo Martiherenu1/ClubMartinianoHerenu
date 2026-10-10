@@ -83,9 +83,35 @@ def _verificador_falso(token: str) -> dict:
     raise firebase_auth.InvalidIdTokenError("token inválido")
 
 
+class FirebaseFalso:
+    """Reemplaza las llamadas a Firebase y recuerda qué se pidió."""
+
+    def __init__(self) -> None:
+        self.cuentas: dict[str, str] = {}  # email -> uid
+        self.eliminados: list[str] = []
+        self._creados = 0
+
+    def crear_usuario(self, email: str, password: str, nombre_visible: str) -> str:
+        if email in self.cuentas:
+            raise firebase_auth.EmailAlreadyExistsError(
+                "existe", cause=None, http_response=None
+            )
+        self._creados += 1
+        uid = f"uid-{self._creados}"
+        self.cuentas[email] = uid
+        return uid
+
+    def eliminar_usuario(self, uid: str) -> None:
+        self.eliminados.append(uid)
+
+
 @pytest.fixture(autouse=True)
-def firebase_falso(monkeypatch):
+def firebase_falso(monkeypatch) -> FirebaseFalso:
+    falso = FirebaseFalso()
     monkeypatch.setattr(firebase, "verificar_id_token", _verificador_falso)
+    monkeypatch.setattr(firebase, "crear_usuario", falso.crear_usuario)
+    monkeypatch.setattr(firebase, "eliminar_usuario", falso.eliminar_usuario)
+    return falso
 
 
 @pytest.fixture
