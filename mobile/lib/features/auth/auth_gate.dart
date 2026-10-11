@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/servicio_auth.dart';
-import '../inicio/pantalla_inicio.dart';
+import '../shell/pantalla_principal.dart';
 import 'pantalla_login.dart';
 
 class AuthGate extends StatelessWidget {
@@ -23,7 +23,7 @@ class AuthGate extends StatelessWidget {
           return const Scaffold(body: Center(child: CircularProgressIndicator()));
         }
         // Al cambiar de pantalla se descartan las rutas apiladas (registro, etc.).
-        return snap.data == null ? const PantallaLogin() : const PantallaInicio();
+        return snap.data == null ? const PantallaLogin() : const PantallaPrincipal();
       },
     );
   }
