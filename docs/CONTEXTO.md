@@ -120,14 +120,19 @@ Detalle completo en `modelo-datos.md`, `arquitectura.md`, `plan.md` y `casos-de-
 - [x] **Disponibilidad — CU-12 de Martiniano** (`feat/disponibilidad`):
   `GET /espacios/{id}/disponibilidad?fecha=&duracion=`. Algoritmo explicado en
   `docs/cu-12-disponibilidad.md` (para la defensa).
-- [ ] Reservas (`feat/reservas`).
+- [x] **Reservas** (`feat/reservas`): crear (CU-09) con bloqueo de la cancha
+  (`SELECT ... FOR UPDATE`) para que dos reservas simultáneas no tomen el mismo
+  turno, listar próximas/historial (CU-08) con estado derivado (`en_curso`,
+  `completada`), detalle y cancelar (CU-10). 107 tests.
+- **Fase 1 (backend) COMPLETA** → tag `v0.2.0` al mergear.
 - [ ] Deploy en Render.
 
 ## 8. Próximos pasos inmediatos
 
-1. Martiniano mergea el PR `feat/disponibilidad`.
-2. `feat/reservas`: crear (CU-09), listar próximas/historial (CU-08), detalle y
-   cancelar (CU-10), reutilizando `calcular_franjas` / `se_superponen`.
+1. Martiniano mergea el PR `feat/reservas` → tag `v0.2.0`.
+2. **Fase 2 — Deploy en Render** (desde el 18/10, por el vencimiento de 30 días de
+   la base gratuita): PostgreSQL + API, secretos, migraciones y seed en producción.
+3. Mientras tanto se puede adelantar la **Fase 3 (app Flutter)** contra la API local.
 
 ## 9. Cómo colaboramos
 

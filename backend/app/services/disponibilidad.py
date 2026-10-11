@@ -39,7 +39,7 @@ class Franja:
     motivo: str | None  # None | "ocupado" | "pasado"
 
 
-def _sumar_horas(hora: time, horas: int) -> time:
+def sumar_horas(hora: time, horas: int) -> time:
     return (datetime.combine(date.min, hora) + timedelta(hours=horas)).time()
 
 
@@ -69,7 +69,7 @@ def calcular_franjas(
     franjas: list[Franja] = []
     inicio = apertura
     while True:
-        fin = _sumar_horas(inicio, duracion)
+        fin = sumar_horas(inicio, duracion)
         # Si se pasa del cierre (o "da la vuelta" a la medianoche) no hay más franjas.
         if fin > cierre or fin <= inicio:
             break
@@ -80,7 +80,7 @@ def calcular_franjas(
         else:
             motivo = None
         franjas.append(Franja(inicio, fin, motivo is None, motivo))
-        inicio = _sumar_horas(inicio, 1)
+        inicio = sumar_horas(inicio, 1)
     return franjas
 
 
