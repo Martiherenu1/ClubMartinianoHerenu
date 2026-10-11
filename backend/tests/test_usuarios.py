@@ -74,6 +74,7 @@ def test_email_que_ya_existe_solo_en_firebase_responde_409(cliente, firebase_fal
     [
         ("email", "no-es-un-email"),
         ("password", "123"),
+        ("password", "1234567"),  # 7 caracteres: el Figma pide mínimo 8
         ("dni", "12ab"),
         ("nombre", "   "),
         ("fecha_nacimiento", "2999-01-01"),

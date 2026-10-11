@@ -27,6 +27,15 @@ class ErrorServidor extends ErrorApp {
       : super('Hubo un problema en el servidor. Intentá de nuevo más tarde.');
 }
 
+/// Email o contraseña incorrectos al iniciar sesión.
+///
+/// El mensaje es genérico a propósito (CU-01, FA2): no dice cuál de los dos datos
+/// falló, para no revelar qué emails tienen cuenta.
+class CredencialesInvalidas extends ErrorApp {
+  const CredencialesInvalidas()
+      : super('No se pudo iniciar sesión. Verificá tu email y contraseña.');
+}
+
 /// 401: el token falta, venció o la cuenta fue dada de baja. → vuelve al login.
 class NoAutenticado extends ErrorApp {
   const NoAutenticado(super.mensaje);
