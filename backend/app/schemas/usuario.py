@@ -48,8 +48,8 @@ class RegistroUsuario(DatosPersonales):
     """Body de POST /usuarios (CU-03)."""
 
     email: EmailStr = Field(examples=["martiniano@mail.com"])
-    # Firebase exige al menos 6 caracteres.
-    password: str = Field(min_length=6, max_length=128, examples=["clave123"])
+    # 8 como pide el Figma ("Mínimo 8 caracteres"); Firebase exige al menos 6.
+    password: str = Field(min_length=8, max_length=128, examples=["clave123"])
 
 
 class EdicionUsuario(DatosPersonales):
