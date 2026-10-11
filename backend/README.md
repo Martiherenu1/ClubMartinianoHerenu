@@ -132,6 +132,10 @@ protegidos: botón **Authorize** → pegar el ID token de Firebase.
 | GET | `/api/v1/espacios/{id}` | ✔ | 16 | Una cancha (404 si no existe o está inactiva). |
 | GET | `/api/v1/deportes` | ✔ | 20 | Deportes y sus tipos, para los chips de filtro. |
 | GET | `/api/v1/espacios/{id}/disponibilidad` | ✔ | **12** | Grilla de horarios de un día: `?fecha=AAAA-MM-DD&duracion=1\|2`. Ver `docs/cu-12-disponibilidad.md`. |
+| POST | `/api/v1/reservas` | ✔ | 09 | Reserva `{espacio_id, fecha, hora_inicio, duracion}`. 400 fuera de horario o pasado, 409 `HORARIO_OCUPADO`. |
+| GET | `/api/v1/reservas` | ✔ | 08 | Mis reservas: `?vista=proximas` (por defecto) o `historial`. |
+| GET | `/api/v1/reservas/{id}` | ✔ | 24 | Detalle de una reserva propia. |
+| DELETE | `/api/v1/reservas/{id}` | ✔ | 10 | Cancela (pasa a `cancelada`, libera el horario). 409 si ya empezó, terminó o estaba cancelada. |
 
 ## Autenticación
 
