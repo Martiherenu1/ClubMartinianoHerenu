@@ -7,12 +7,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 
 import 'ayudas.dart';
+import 'servidor_falso.dart';
 
-/// Servidor falso: solo responde el perfil.
-Future<http.Response> soloPerfil(http.Request r) async {
-  if (r.url.path.endsWith('/usuarios/me')) return jsonResp(perfilJson, 200);
-  return jsonResp({'error': {'codigo': 'NO_ENCONTRADO', 'mensaje': 'x'}}, 404);
-}
+/// Servidor falso con el catálogo; para estos tests solo importa que responda el
+/// perfil y la Home pueda cargar después del login.
+Future<http.Response> soloPerfil(http.Request r) => ServidorFalso().responder(r);
 
 void main() {
   group('Login (CU-01)', () {
@@ -102,6 +101,8 @@ void main() {
 
       expect(find.text('Martiniano Hereñu'), findsOneWidget);
 
+      await tester.tap(find.bySemanticsLabel('PERFIL'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Cerrar sesión'));
       await tester.pumpAndSettle();
       expect(find.text('INICIAR SESIÓN'), findsOneWidget);
