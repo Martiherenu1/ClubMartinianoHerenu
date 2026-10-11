@@ -20,7 +20,7 @@ Universidad de Morón (Docente: Marcelo Camicha).
 
 | Capa            | Tecnología                          | Estado        |
 |-----------------|-------------------------------------|---------------|
-| App móvil       | Flutter 3.47 (SDK en `C:\dev\flutter`) | Entorno listo, app por empezar |
+| App móvil       | Flutter 3.47 (SDK en `C:\dev\flutter`) | Base creada (tema, API, errores) |
 | Diseño UX/UI    | Figma grupal                        | **Terminado** (Entrega 1) |
 | Backend / API   | FastAPI (Python) + SQLAlchemy + Alembic | Modelos y migración inicial |
 | Base de datos   | PostgreSQL                          | Local en Docker |
@@ -125,14 +125,22 @@ Detalle completo en `modelo-datos.md`, `arquitectura.md`, `plan.md` y `casos-de-
   turno, listar próximas/historial (CU-08) con estado derivado (`en_curso`,
   `completada`), detalle y cancelar (CU-10). 107 tests.
 - **Fase 1 (backend) COMPLETA** → tag `v0.2.0` al mergear.
+- [x] **Base de la app** (`feat/app-base`, Fase 3): proyecto Flutter en `mobile/`
+  (id `com.martinianoherenu.club_martinianoherenu`), tema claro/oscuro del Figma,
+  cliente de la API con errores traducidos (`SinConexion`, `ErrorServidor`,
+  `NoAutenticado`, `ErrorNegocio`), 12 tests. Probada en el emulador contra la API local.
+- [ ] Login, registro y recuperar contraseña (`feat/auth`) — necesita Firebase.
+- [ ] Home y sedes, horarios (CU-12), mis reservas, perfil, ícono.
 - [ ] Deploy en Render.
 
 ## 8. Próximos pasos inmediatos
 
-1. Martiniano mergea el PR `feat/reservas` → tag `v0.2.0`.
-2. **Fase 2 — Deploy en Render** (desde el 18/10, por el vencimiento de 30 días de
-   la base gratuita): PostgreSQL + API, secretos, migraciones y seed en producción.
-3. Mientras tanto se puede adelantar la **Fase 3 (app Flutter)** contra la API local.
+1. Martiniano mergea el PR `feat/app-base`.
+2. **Firebase para la app** (lo hace Martiniano): registrar la app Android con el
+   id `com.martinianoherenu.club_martinianoherenu`, bajar `google-services.json` a
+   `mobile/android/app/` y confirmar que Email/Contraseña esté habilitado.
+3. `feat/auth`: login, registro, recuperar contraseña y AuthGate.
+4. Pantallas siguientes: Home/sedes, horarios (CU-12), mis reservas, perfil.
 
 ## 9. Cómo colaboramos
 
