@@ -1,20 +1,69 @@
 # App móvil — ClubMartinianoHerenu
 
-Aplicación en **Flutter**. Se conecta a la API REST del backend y usa
-**Firebase Authentication** para el registro/login.
+Aplicación en **Flutter** para reservar canchas. Se conecta a la API REST del
+backend (`../backend`) y usa **Firebase Authentication** para el login.
 
-> 🚧 En construcción. Los pasos se completan al crear el proyecto Flutter (Hito 3).
+## Requisitos
 
-## Requisitos previos (previstos)
-- Flutter SDK
-- Un emulador Android (o dispositivo físico)
+- Flutter SDK 3.47 o superior (`flutter doctor` sin errores de Android).
+- Un emulador Android con Google Play (o un celular con depuración USB).
+- El backend corriendo (ver `../backend/README.md`).
 
-## Puesta en marcha (se completará)
+## Puesta en marcha
+
 ```bash
-# flutter pub get
-# flutter run
+cd mobile
+flutter pub get
+flutter run
 ```
 
-## Configuración (prevista)
-- URL de la API (local / Render).
-- Archivos de configuración de Firebase (`google-services.json`, etc.) — NO se versionan.
+Por defecto la app apunta a la API local en `http://10.0.2.2:8000`: `10.0.2.2` es
+la dirección con la que el emulador de Android ve el `localhost` de la PC.
+
+Para apuntar a otra API (por ejemplo la de Render):
+
+```bash
+flutter run --dart-define=API_URL=https://mi-api.onrender.com
+```
+
+> El HTTP sin cifrar solo está permitido en la versión **debug**
+> (`android/app/src/debug/AndroidManifest.xml`). La versión release exige HTTPS.
+
+## Estructura
+
+```
+lib/
+├── main.dart                     # punto de entrada
+├── app/
+│   ├── app.dart                  # MaterialApp, providers, modo claro/oscuro
+│   ├── tema.dart                 # colores y tipografías del Figma
+│   └── controlador_tema.dart     # modo claro/oscuro recordado en el celular
+├── core/
+│   ├── config.dart               # URL de la API
+│   ├── api_client.dart           # cliente HTTP: token, timeout y errores
+│   └── errores.dart              # SinConexion, ErrorServidor, NoAutenticado, ErrorNegocio
+└── features/                     # una carpeta por pantalla/flujo
+```
+
+## Manejo de errores
+
+`ApiClient` traduce cualquier problema a un error que la interfaz sabe mostrar:
+
+| Situación | Error | Qué muestra la app |
+|---|---|---|
+| Sin internet, sin red o el servidor no responde a tiempo | `SinConexion` | Tarjeta "Error de conexión a Internet" |
+| El servidor falla (5xx) o responde algo inesperado | `ErrorServidor` | Tarjeta "Error del servidor" |
+| Token vencido o cuenta dada de baja (401) | `NoAutenticado` | Vuelve al login |
+| Regla de negocio (400, 404, 409, 422) | `ErrorNegocio` | Mensaje de la API, ej. "El horario seleccionado ya no está disponible" |
+
+## Tests
+
+```bash
+flutter analyze
+flutter test
+```
+
+## Configuración de Firebase (se completa en el PR de login)
+
+- `google-services.json` en `android/app/` — **NO se versiona** (`.gitignore`).
+- Identificador de la app en Firebase: `com.martinianoherenu.club_martinianoherenu`.
