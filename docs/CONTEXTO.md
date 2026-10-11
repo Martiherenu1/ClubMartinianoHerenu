@@ -129,18 +129,22 @@ Detalle completo en `modelo-datos.md`, `arquitectura.md`, `plan.md` y `casos-de-
   (id `com.martinianoherenu.club_martinianoherenu`), tema claro/oscuro del Figma,
   cliente de la API con errores traducidos (`SinConexion`, `ErrorServidor`,
   `NoAutenticado`, `ErrorNegocio`), 12 tests. Probada en el emulador contra la API local.
-- [ ] Login, registro y recuperar contraseña (`feat/auth`) — necesita Firebase.
+- [x] **Login, registro y recuperar contraseña** (`feat/auth`): Firebase en la app
+  (`google-services.json` fuera del repo), AuthGate, pantallas del Figma, 37 tests.
+  Probado de punta a punta en el emulador con una cuenta real. Se corrigió un error
+  del backend: con la PC 13 s atrasada rechazaba tokens válidos (margen de reloj de
+  10 s → 60 s). Contraseña mínima de 8 como pide el Figma.
 - [ ] Home y sedes, horarios (CU-12), mis reservas, perfil, ícono.
 - [ ] Deploy en Render.
 
 ## 8. Próximos pasos inmediatos
 
-1. Martiniano mergea el PR `feat/app-base`.
-2. **Firebase para la app** (lo hace Martiniano): registrar la app Android con el
-   id `com.martinianoherenu.club_martinianoherenu`, bajar `google-services.json` a
-   `mobile/android/app/` y confirmar que Email/Contraseña esté habilitado.
-3. `feat/auth`: login, registro, recuperar contraseña y AuthGate.
-4. Pantallas siguientes: Home/sedes, horarios (CU-12), mis reservas, perfil.
+1. Martiniano mergea el PR `feat/auth`.
+2. `feat/home-sedes`: Home (próxima reserva, sedes, filtros por deporte), "Todas las
+   sedes", pantalla de cada sede con sus canchas y la barra inferior (Inicio, Sedes,
+   Reservas, Perfil).
+3. `feat/horarios`: CU-12 de Martiniano + Confirmar reserva.
+4. `feat/mis-reservas`, `feat/perfil`, ícono.
 
 ## 9. Cómo colaboramos
 

@@ -63,7 +63,35 @@ flutter analyze
 flutter test
 ```
 
-## Configuración de Firebase (se completa en el PR de login)
+## Configuración de Firebase
 
-- `google-services.json` en `android/app/` — **NO se versiona** (`.gitignore`).
-- Identificador de la app en Firebase: `com.martinianoherenu.club_martinianoherenu`.
+La app inicia sesión directo con **Firebase Authentication** (email y contraseña).
+
+1. En la consola de Firebase, registrar una app **Android** con el paquete
+   `com.martinianoherenu.club_martinianoherenu`.
+2. Descargar `google-services.json` y copiarlo en `mobile/android/app/`.
+   **No se versiona** (está en `.gitignore`).
+3. En **Authentication → Método de acceso**, habilitar **Correo electrónico/contraseña**.
+
+El plugin `com.google.gms.google-services` (en `android/settings.gradle.kts` y
+`android/app/build.gradle.kts`) lee ese archivo; en `main.dart`, `Firebase.initializeApp()`
+no necesita más configuración.
+
+## Autenticación y navegación
+
+```
+AppClub
+ └─ AuthGate ── escucha ServicioAuth.cambios (Firebase authStateChanges)
+      ├─ sin sesión → PantallaLogin ─┬─ PantallaRegistro   (POST /usuarios)
+      │                              └─ PantallaRecuperar  (Firebase: enlace por email)
+      └─ con sesión → PantallaInicio (GET /usuarios/me con el ID token)
+```
+
+- **Login (CU-01):** valida campos vacíos sin llamar al servidor; credenciales
+  inválidas dan un mensaje genérico (no revela cuál dato falló); sin conexión y
+  error del servidor abren las tarjetas del Figma.
+- **Registro (CU-03):** pasa por la API (valida DNI y email duplicados y crea la
+  cuenta en Firebase). Al terminar, vuelve al login.
+- **Recuperar contraseña:** Firebase manda el email; si el email no tiene cuenta se
+  responde igual, para no revelar qué emails están registrados.
+- Un `401` de la API (token vencido o cuenta dada de baja) cierra la sesión y vuelve al login.
