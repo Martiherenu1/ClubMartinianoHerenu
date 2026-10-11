@@ -22,41 +22,46 @@ Future<void> mostrarTarjetaError(BuildContext context, ErrorApp error) {
   );
 }
 
+/// Tarjeta oscura con título rojo y mensaje.
+///
+/// Con [comoDialogo] (por defecto) se usa dentro de `showDialog` y trae el botón
+/// "Aceptar". Con `comoDialogo: false` es una tarjeta común para poner en la
+/// pantalla (por ejemplo cuando no cargó una lista).
 class TarjetaError extends StatelessWidget {
-  const TarjetaError({super.key, required this.titulo, required this.mensaje});
+  const TarjetaError({
+    super.key,
+    required this.titulo,
+    required this.mensaje,
+    this.comoDialogo = true,
+  });
 
   final String titulo;
   final String mensaje;
+  final bool comoDialogo;
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colores.fondoOscuro,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 20),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: Colors.white.withValues(alpha: 0.12)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              titulo,
-              style: const TextStyle(
-                color: Color(0xFFD9575C),
-                fontSize: 11,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 3,
-              ),
+    final cuerpo = Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            titulo,
+            style: const TextStyle(
+              color: Color(0xFFD9575C),
+              fontSize: 11,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 3,
             ),
-            const SizedBox(height: 14),
-            Text(
-              mensaje,
-              style: const TextStyle(color: Colors.white, fontSize: 14, height: 1.45),
-            ),
+          ),
+          const SizedBox(height: 14),
+          Text(
+            mensaje,
+            style: const TextStyle(color: Colors.white, fontSize: 14, height: 1.45),
+          ),
+          if (comoDialogo) ...[
             const SizedBox(height: 18),
             SizedBox(
               width: double.infinity,
@@ -72,8 +77,23 @@ class TarjetaError extends StatelessWidget {
               ),
             ),
           ],
-        ),
+        ],
       ),
     );
+
+    final forma = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(16),
+      side: BorderSide(color: Colors.white.withValues(alpha: 0.12)),
+    );
+
+    if (comoDialogo) {
+      return Dialog(
+        backgroundColor: Colores.fondoOscuro,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+        shape: forma,
+        child: cuerpo,
+      );
+    }
+    return Material(color: Colores.fondoOscuro, shape: forma, child: cuerpo);
   }
 }
