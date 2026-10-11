@@ -39,8 +39,12 @@ def verificar_id_token(token: str) -> dict:
     Lanza una excepción de `firebase_admin.auth` si el token no es válido.
     El dato clave del resultado es `uid`, el identificador del usuario en Firebase.
     """
+    # El token trae la hora de emisión (`iat`). Si el reloj de esta máquina está
+    # unos segundos atrasado respecto de Google, el SDK lo rechaza como "usado
+    # demasiado pronto". 60 s es el máximo que admite el SDK y evita ese falso
+    # rechazo (pasó en desarrollo con un reloj 13 s atrasado).
     return auth.verify_id_token(
-        token, app=obtener_app_firebase(), clock_skew_seconds=10
+        token, app=obtener_app_firebase(), clock_skew_seconds=60
     )
 
 
