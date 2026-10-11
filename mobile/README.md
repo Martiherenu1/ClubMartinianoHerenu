@@ -42,7 +42,25 @@ lib/
 │   ├── config.dart               # URL de la API
 │   ├── api_client.dart           # cliente HTTP: token, timeout y errores
 │   └── errores.dart              # SinConexion, ErrorServidor, NoAutenticado, ErrorNegocio
+│   └── formato.dart              # precios, fechas, horas y etiquetas ($ 3.800, sáb, 15 ago)
+├── data/                         # modelos y llamadas a la API
+│   ├── usuarios_api.dart
+│   ├── catalogo_api.dart         # sedes, canchas, filtros
+│   └── reservas_api.dart
+├── widgets/                      # piezas compartidas
+│   ├── barra_inferior.dart       # Inicio · Sedes · Reservas · Perfil
+│   ├── carga_async.dart          # cargando / error + reintentar / datos
+│   ├── etiquetas.dart            # chips de deporte, tipo y condición
+│   ├── imagen_catalogo.dart      # fotos de sedes y canchas
+│   └── tarjeta_error.dart        # tarjetas "Error de conectividad / del servidor"
 └── features/                     # una carpeta por pantalla/flujo
+    ├── auth/                     # login, registro, recuperar contraseña
+    ├── shell/                    # estructura con la barra inferior
+    ├── inicio/                   # Home
+    ├── sedes/                    # todas las sedes, detalle de sede, tarjeta de cancha
+    ├── horarios/                 # (provisoria) CU-12
+    ├── reservas/                 # (provisoria) mis reservas
+    └── perfil/                   # (provisoria) perfil
 ```
 
 ## Manejo de errores
@@ -84,7 +102,7 @@ AppClub
  └─ AuthGate ── escucha ServicioAuth.cambios (Firebase authStateChanges)
       ├─ sin sesión → PantallaLogin ─┬─ PantallaRegistro   (POST /usuarios)
       │                              └─ PantallaRecuperar  (Firebase: enlace por email)
-      └─ con sesión → PantallaInicio (GET /usuarios/me con el ID token)
+      └─ con sesión → PantallaPrincipal (barra inferior, ver abajo)
 ```
 
 - **Login (CU-01):** valida campos vacíos sin llamar al servidor; credenciales
@@ -95,3 +113,25 @@ AppClub
 - **Recuperar contraseña:** Firebase manda el email; si el email no tiene cuenta se
   responde igual, para no revelar qué emails están registrados.
 - Un `401` de la API (token vencido o cuenta dada de baja) cierra la sesión y vuelve al login.
+
+## Pantallas con sesión (Home, Sedes y Canchas)
+
+```
+PantallaPrincipal ── barra inferior, cada pestaña con su propio Navigator
+ ├─ Inicio   → PantallaInicio   saludo, próxima reserva, filtro por deporte, sedes
+ ├─ Sedes    → PantallaSedes ──→ PantallaSede ──→ PantallaHorarios (CU-12)
+ ├─ Reservas → (provisoria)
+ └─ Perfil   → (provisoria)
+```
+
+- **Barra inferior persistente:** al entrar al detalle de una sede la barra sigue
+  visible (como en el Figma) y cada pestaña conserva su pila al cambiar de una a otra.
+  El botón Atrás cierra lo apilado, después vuelve a Inicio y recién ahí sale de la app.
+- **Home:** `GET /usuarios/me`, `/sedes` y `/reservas` en paralelo. Los chips de
+  deporte vuelven a pedir `/sedes?deporte=`. Tocar una sede la abre en la pestaña Sedes.
+- **Sede:** primero se elige el deporte y debajo el tipo; cada cambio vuelve a pedir
+  `/espacios?sede_id=&deporte=&tipo=` (CU-20). Los tipos salen de la propia sede.
+- **Fotos:** las del Figma viajan en `assets/images`. La API tiene `imagen_url` por
+  sede: si algún día viene cargada, se usa esa.
+- **Modo claro y oscuro:** las tarjetas, bordes y texto salen de `ColoresDeContexto`
+  (`app/tema.dart`), así cada pantalla respeta el modo elegido.
