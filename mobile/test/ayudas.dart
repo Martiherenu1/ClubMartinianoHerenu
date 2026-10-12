@@ -6,6 +6,7 @@ import 'package:club_martinianoherenu/app/controlador_tema.dart';
 import 'package:club_martinianoherenu/core/api_client.dart';
 import 'package:club_martinianoherenu/core/errores.dart';
 import 'package:club_martinianoherenu/core/servicio_auth.dart';
+import 'package:club_martinianoherenu/core/servicio_notificaciones.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -80,6 +81,77 @@ class AuthFalso implements ServicioAuth {
   }
 }
 
+/// Reemplaza a Firebase Cloud Messaging en los tests.
+class NotificacionesFalso implements ServicioNotificaciones {
+  NotificacionesFalso({
+    this.estado = PermisoNotificaciones.concedido,
+    this.alPedir = PermisoNotificaciones.concedido,
+    this.tokenActual = 'token-fcm-1',
+    this.inicial,
+  });
+
+  /// Permiso que informa el sistema.
+  PermisoNotificaciones estado;
+
+  /// Cómo queda el permiso si el usuario acepta el pedido del sistema.
+  PermisoNotificaciones alPedir;
+
+  /// Token de FCM de este celular (`null` = sin Google Play Services).
+  String? tokenActual;
+
+  /// Aviso con el que se "abrió" la app desde cerrada.
+  AvisoPush? inicial;
+
+  int pedidosDePermiso = 0;
+  bool tokenOlvidado = false;
+
+  final _renovado = StreamController<String>.broadcast();
+  final _primerPlano = StreamController<AvisoPush>.broadcast();
+  final _abiertos = StreamController<AvisoPush>.broadcast();
+
+  /// El usuario toca un aviso con la app en segundo plano.
+  void tocarAviso(AvisoPush aviso) => _abiertos.add(aviso);
+
+  /// Llega un aviso con la app abierta.
+  void llegarAviso(AvisoPush aviso) => _primerPlano.add(aviso);
+
+  /// FCM renueva el token del celular.
+  void renovarToken(String nuevo) {
+    tokenActual = nuevo;
+    _renovado.add(nuevo);
+  }
+
+  @override
+  Future<PermisoNotificaciones> permiso() async => estado;
+
+  @override
+  Future<PermisoNotificaciones> pedirPermiso() async {
+    pedidosDePermiso++;
+    estado = alPedir;
+    return estado;
+  }
+
+  @override
+  Future<String?> token() async => tokenActual;
+
+  @override
+  Stream<String> get tokenRenovado => _renovado.stream;
+
+  @override
+  Stream<AvisoPush> get enPrimerPlano => _primerPlano.stream;
+
+  @override
+  Stream<AvisoPush> get abiertos => _abiertos.stream;
+
+  @override
+  Future<AvisoPush?> avisoInicial() async => inicial;
+
+  @override
+  Future<void> olvidarToken() async {
+    tokenOlvidado = true;
+  }
+}
+
 http.Response jsonResp(Object cuerpo, int status) => http.Response(
       jsonEncode(cuerpo),
       status,
@@ -118,6 +190,7 @@ Future<void> abrirApp(
   WidgetTester tester, {
   required AuthFalso auth,
   required Future<http.Response> Function(http.Request) servidor,
+  NotificacionesFalso? notificaciones,
 }) async {
   prepararEntornoDeTest(tester);
   final api = ApiClient(
@@ -126,7 +199,14 @@ Future<void> abrirApp(
     proveedorToken: auth.idToken,
     timeout: const Duration(seconds: 5),
   );
-  await tester.pumpWidget(AppClub(auth: auth, api: api, tema: ControladorTema()));
+  await tester.pumpWidget(
+    AppClub(
+      auth: auth,
+      api: api,
+      tema: ControladorTema(),
+      notificaciones: notificaciones ?? NotificacionesFalso(),
+    ),
+  );
   await tester.pump();
 }
 

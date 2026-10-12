@@ -131,6 +131,7 @@ Map<String, dynamic> reservaJson({
   String estado = 'confirmada',
   int espacio = 5,
   num precio = 2500,
+  List<Map<String, dynamic>> recordatorios = const [],
 }) {
   final f = DateTime.now().add(Duration(days: dias));
   String dos(int n) => n.toString().padLeft(2, '0');
@@ -146,8 +147,37 @@ Map<String, dynamic> reservaJson({
     'cancelable': estado == 'confirmada',
     'creada_en': '2026-10-11T12:00:00Z',
     'cancelada_en': estado == 'cancelada' ? '2026-10-12T12:00:00Z' : null,
+    'recordatorios': recordatorios,
   };
 }
+
+/// Un recordatorio de la reserva (`tipo` `24h` o `1h`, `estado` `pendiente`,
+/// `enviado` o `no_enviado`), con la hora del club como la manda la API.
+Map<String, dynamic> recordatorioJson(String tipo, String estado, String cuando) => {
+      'tipo': tipo,
+      'programado_para': '$cuando-03:00',
+      'estado': estado,
+    };
+
+/// Un aviso del panel de notificaciones (`GET /notificaciones`).
+Map<String, dynamic> avisoJson({
+  int id = 1,
+  String tipo = 'recordatorio_1h',
+  int reservaId = 10,
+  String titulo = 'Tu reserva comienza en 1 hora',
+  String cuerpo = 'Sede Morón · Tenis Polvo de ladrillo\n'
+      'jue 15 oct, 19:00 a 20:00\n'
+      'Av. Rivadavia 17500, Morón',
+  String enviadaEn = '2026-10-15T18:00:00-03:00',
+}) =>
+    {
+      'id': id,
+      'tipo': tipo,
+      'titulo': titulo,
+      'cuerpo': cuerpo,
+      'reserva_id': reservaId,
+      'enviada_en': enviadaEn,
+    };
 
 class ServidorFalso {
   ServidorFalso({
@@ -198,6 +228,17 @@ class ServidorFalso {
   /// `true` cuando la app dio de baja la cuenta (`DELETE /usuarios/me`).
   bool cuentaEliminada = false;
 
+  /// Celulares registrados para push (`POST /usuarios/me/dispositivos`) y
+  /// quitados (`DELETE`), en orden.
+  final dispositivos = <String>[];
+  final dispositivosQuitados = <String>[];
+
+  /// Si es `true`, registrar el celular responde 500.
+  bool registroFalla = false;
+
+  /// Avisos del panel (`GET /notificaciones`).
+  List<Map<String, dynamic>> avisos = [];
+
   /// Si se asigna, el servidor lanza este error en cada pedido.
   Object? fallo;
 
@@ -240,6 +281,24 @@ class ServidorFalso {
 
     final ruta = r.url.path.replaceFirst('/api/v1', '');
     final q = r.url.queryParameters;
+
+    if (ruta == '/usuarios/me/dispositivos' && r.method == 'POST') {
+      if (registroFalla) {
+        return jsonResp({
+          'error': {'codigo': 'ERROR_INTERNO', 'mensaje': 'Error interno.'},
+        }, 500);
+      }
+      dispositivos.add((jsonDecode(r.body) as Map<String, dynamic>)['fcm_token'] as String);
+      return http.Response('', 204);
+    }
+
+    final quitar = RegExp(r'^/usuarios/me/dispositivos/(.+)$').firstMatch(ruta);
+    if (quitar != null && r.method == 'DELETE') {
+      dispositivosQuitados.add(Uri.decodeComponent(quitar.group(1)!));
+      return http.Response('', 204);
+    }
+
+    if (ruta == '/notificaciones') return jsonResp(avisos, 200);
 
     if (ruta == '/usuarios/me') {
       if (r.method == 'PUT') {
