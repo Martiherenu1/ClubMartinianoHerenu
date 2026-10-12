@@ -1,0 +1,46 @@
+# Recordatorios de reservas (CU-24).
+#
+# Cada 15 minutos llama a la API para que mande los push de "tu reserva es en 24 h"
+# y "en 1 hora". Es un cron externo porque en el plan gratuito de Render el servidor
+# se duerme sin tráfico y un temporizador interno no correría (ver docs/arquitectura.md).
+#
+# Necesita dos secretos del repositorio (Settings > Secrets and variables > Actions):
+#   API_URL        URL base de la API, ej. https://clubmartinianoherenu-api.onrender.com
+#   TAREAS_CLAVE   la misma clave que la variable TAREAS_CLAVE de la API
+# Mientras no estén cargados el workflow termina sin hacer nada.
+name: Recordatorios de reservas
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch: # para probarlo a mano desde la pestaña Actions
+
+# No necesita leer ni escribir nada del repositorio.
+permissions: {}
+
+# Que dos corridas no se pisen si una tarda.
+concurrency:
+  group: recordatorios
+  cancel-in-progress: false
+
+jobs:
+  enviar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Disparar los recordatorios
+        env:
+          API_URL: ${{ secrets.API_URL }}
+          TAREAS_CLAVE: ${{ secrets.TAREAS_CLAVE }}
+        run: |
+          if [ -z "$API_URL" ] || [ -z "$TAREAS_CLAVE" ]; then
+            echo "::notice::Faltan los secretos API_URL y TAREAS_CLAVE: todavía no se envían recordatorios."
+            exit 0
+          fi
+          # Si la API estaba dormida, la primera llamada tarda ~1 minuto en despertarla.
+          curl --fail-with-body --silent --show-error \
+            --max-time 120 --retry 3 --retry-delay 10 --retry-all-errors \
+            -X POST \
+            -H "X-Tareas-Clave: $TAREAS_CLAVE" \
+            "${API_URL%/}/api/v1/tareas/recordatorios"
+          echo
