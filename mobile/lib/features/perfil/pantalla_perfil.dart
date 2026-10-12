@@ -57,6 +57,10 @@ class _ContenidoPerfilState extends State<_ContenidoPerfil> {
   bool _intentoGuardar = false;
   bool _confirmandoBaja = false;
 
+  /// Zona de peligro: al pedir la confirmación se desplaza hasta mostrarla
+  /// completa (queda debajo de la barra inferior).
+  final _claveZonaPeligro = GlobalKey();
+
   @override
   void initState() {
     super.initState();
@@ -186,6 +190,19 @@ class _ContenidoPerfilState extends State<_ContenidoPerfil> {
         ),
       );
     }
+  }
+
+  void _pedirConfirmacionDeBaja() {
+    setState(() => _confirmandoBaja = true);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final contexto = _claveZonaPeligro.currentContext;
+      if (contexto == null) return;
+      Scrollable.ensureVisible(
+        contexto,
+        duration: const Duration(milliseconds: 250),
+        alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+      );
+    });
   }
 
   Future<void> _eliminarCuenta() async {
@@ -464,6 +481,7 @@ class _ContenidoPerfilState extends State<_ContenidoPerfil> {
 
   Widget _zonaDePeligro(BuildContext context) {
     return Container(
+      key: _claveZonaPeligro,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: _rojo.withValues(alpha: 0.08),
@@ -495,7 +513,7 @@ class _ContenidoPerfilState extends State<_ContenidoPerfil> {
               button: true,
               label: 'Eliminar cuenta',
               child: InkWell(
-                onTap: () => setState(() => _confirmandoBaja = true),
+                onTap: _pedirConfirmacionDeBaja,
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
                   height: 46,
