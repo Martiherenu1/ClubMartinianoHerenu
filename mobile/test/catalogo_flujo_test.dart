@@ -216,17 +216,6 @@ void main() {
   });
 
   group('Pestañas', () {
-    testWidgets('Perfil muestra los datos y permite cerrar sesión', (tester) async {
-      await abrirConSesion(tester);
-      await irAPestana(tester, 'PERFIL');
-
-      expect(find.text('martiniano@mail.com'), findsOneWidget);
-
-      await tester.tap(find.text('Cerrar sesión'));
-      await tester.pumpAndSettle();
-      expect(find.text('INICIAR SESIÓN'), findsOneWidget);
-    });
-
     testWidgets('cuenta sin perfil en la API (404): vuelve al login', (tester) async {
       final servidor = ServidorFalso()
         ..fallo = const ErrorNegocio(

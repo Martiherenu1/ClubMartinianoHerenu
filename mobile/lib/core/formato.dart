@@ -115,3 +115,21 @@ String emojiDeporte(String deporte) => switch (deporte) {
       'Vóley' => '🏐',
       _ => '🏟️',
     };
+
+/// `40123456` → `40.123.456` (como se ve el DNI en el perfil del Figma).
+String formatearDni(String dni) {
+  final digitos = dni.replaceAll(RegExp(r'\D'), '');
+  if (digitos.length < 7) return dni;
+  final conPuntos = StringBuffer();
+  for (var i = 0; i < digitos.length; i++) {
+    if (i > 0 && (digitos.length - i) % 3 == 0) conPuntos.write('.');
+    conPuntos.write(digitos[i]);
+  }
+  return conPuntos.toString();
+}
+
+/// `15/03/2001`: la fecha de nacimiento con el mismo formato que el registro.
+String formatearFechaNumerica(DateTime fecha) {
+  String dos(int n) => n.toString().padLeft(2, '0');
+  return '${dos(fecha.day)}/${dos(fecha.month)}/${fecha.year}';
+}

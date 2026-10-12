@@ -58,9 +58,9 @@ lib/
     ├── shell/                    # estructura con la barra inferior
     ├── inicio/                   # Home
     ├── sedes/                    # todas las sedes, detalle de sede, tarjeta de cancha
-    ├── horarios/                 # (provisoria) CU-12
+    ├── horarios/                 # CU-12 + reserva
     ├── reservas/                 # mis reservas, detalle y cancelación
-    └── perfil/                   # (provisoria) perfil
+    └── perfil/                   # perfil, cambiar contraseña, baja de la cuenta
 ```
 
 ## Manejo de errores
@@ -121,7 +121,7 @@ PantallaPrincipal ── barra inferior, cada pestaña con su propio Navigator
  ├─ Inicio   → PantallaInicio   saludo, próxima reserva, filtro por deporte, sedes
  ├─ Sedes    → PantallaSedes ──→ PantallaSede ──→ PantallaHorarios (CU-12 + CU-09)
  ├─ Reservas → PantallaReservas ──→ PantallaDetalleReserva ──→ PantallaCancelarReserva
- └─ Perfil   → (provisoria)
+ └─ Perfil   → PantallaPerfil ──→ PantallaCambiarPassword · FlujoEliminarCuenta
 ```
 
 - **Barra inferior persistente:** al entrar al detalle de una sede la barra sigue
@@ -169,3 +169,24 @@ duración, grilla de franjas, resumen y botón.
   avisa y tanto la Home como Mis reservas vuelven a pedir sus datos.
 - **Cuenta sin perfil:** si la API responde `PERFIL_NO_ENCONTRADO` (la cuenta existe en
   Firebase pero no en la base) la app cierra la sesión y vuelve al login.
+
+## Perfil, contraseña y baja de la cuenta (CU-04, CU-05, CU-06 y CU-07)
+
+- **Ver:** `GET /usuarios/me`. Avatar con iniciales, nombre, email, "Miembro activo",
+  DNI con puntos y fecha como `dd/mm/aaaa`. El email es de solo lectura.
+- **Editar (CU-06):** "Editar" habilita nombre, apellido, DNI y fecha (selector de
+  fecha); "Guardar" hace `PUT /usuarios/me`. Valida antes de llamar al servidor y, si el
+  DNI ya está registrado (409), muestra el mensaje de la API y sigue en edición.
+  "Cancelar" descarta los cambios. La Home vuelve a pedir su saludo.
+- **Modo claro / oscuro:** el interruptor se guarda en el celular (`ControladorTema`).
+- **Cambiar contraseña (CU-04):** directo contra Firebase, la contraseña no pasa por
+  nuestra API. Primero se confirma la actual (re-autenticación) y después se aplica la
+  nueva. Requisitos en vivo: 8 caracteres, una mayúscula y un número. Firebase no
+  informa cuántos intentos quedan, así que el error dice solo "La contraseña actual no
+  es correcta."
+- **Cerrar sesión:** vuelve al login.
+- **Eliminar cuenta (CU-07):** confirmación en el lugar → encuesta de salida (opcional)
+  → "Procesando…" (`DELETE /usuarios/me`: cancela las reservas futuras, borra la cuenta
+  de Firebase y anonimiza el perfil) → "Gracias" → login. Si la baja falla, vuelve al
+  perfil con el error y la cuenta sigue. Las respuestas de la encuesta no se guardan
+  todavía (el backend no tiene dónde).

@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:club_martinianoherenu/app/app.dart';
 import 'package:club_martinianoherenu/app/controlador_tema.dart';
 import 'package:club_martinianoherenu/core/api_client.dart';
+import 'package:club_martinianoherenu/core/errores.dart';
 import 'package:club_martinianoherenu/core/servicio_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -22,8 +23,13 @@ class AuthFalso implements ServicioAuth {
   Object? errorAlIniciar;
   Object? errorAlRecuperar;
 
+  /// Contraseña vigente de la cuenta: `cambiarPassword` la confirma contra esta.
+  String passwordActual = 'Clave1234';
+  Object? errorAlCambiarPassword;
+
   final intentos = <(String, String)>[];
   final enlaces = <String>[];
+  final cambiosDePassword = <(String, String)>[];
 
   /// Igual que `authStateChanges` de Firebase: apenas alguien escucha, emite el
   /// estado actual y después cada cambio.
@@ -57,6 +63,20 @@ class AuthFalso implements ServicioAuth {
   Future<void> enviarEnlaceRecuperacion(String email) async {
     if (errorAlRecuperar != null) throw errorAlRecuperar!;
     enlaces.add(email);
+  }
+
+  @override
+  Future<void> cambiarPassword({required String actual, required String nueva}) async {
+    if (errorAlCambiarPassword != null) throw errorAlCambiarPassword!;
+    if (actual != passwordActual) {
+      throw const ErrorNegocio(
+        codigo: codigoPasswordActualIncorrecta,
+        mensaje: 'La contraseña actual no es correcta.',
+        status: 400,
+      );
+    }
+    cambiosDePassword.add((actual, nueva));
+    passwordActual = nueva;
   }
 }
 

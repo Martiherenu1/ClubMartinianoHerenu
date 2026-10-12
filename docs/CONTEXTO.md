@@ -145,15 +145,25 @@ Detalle completo en `modelo-datos.md`, `arquitectura.md`, `plan.md` y `casos-de-
 - [x] **Mis reservas** (`feat/mis-reservas`): próximas e historial, detalle y cancelación
   (CU-08 y CU-10). El detalle no muestra todavía "Recordatorios": llega con las
   notificaciones. 83 tests. Probado en el emulador con la API real.
-- [ ] Perfil, ícono.
+- [x] **Perfil** (`feat/perfil`): ver y editar datos (CU-05/06), modo claro/oscuro,
+  cambiar contraseña (CU-04, Firebase), cerrar sesión y baja de la cuenta con la
+  encuesta de salida (CU-07). 103 tests. Probado en el emulador con Firebase y API reales.
+- [ ] Ícono de la app.
 - [ ] Deploy en Render.
 
 ## 8. Próximos pasos inmediatos
 
-1. Martiniano mergea el PR `feat/mis-reservas`.
-2. `feat/perfil` (ver/editar, cambiar contraseña, cerrar sesión, eliminar cuenta,
-   modo claro/oscuro) y `feat/icono`.
+1. Martiniano mergea el PR `feat/perfil`.
+2. `feat/icono` (ícono y nombre de la app).
 3. Deploy en Render, notificaciones push y cierre (ver `docs/plan.md`).
+
+### Decisiones abiertas
+
+- **Encuesta de salida (baja de cuenta):** el Figma la pide, pero ni el backend ni las
+  especificaciones de los compañeros (CU-07) definen dónde se guardan las respuestas.
+  Hoy la app muestra la encuesta y **no guarda** las respuestas; "Omitir" y "Enviar y
+  eliminar" hacen lo mismo. Si el grupo quiere guardarlas hace falta un endpoint y una
+  tabla en el backend.
 
 ## 9. Cómo colaboramos
 
