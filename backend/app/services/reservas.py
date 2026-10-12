@@ -18,7 +18,7 @@ from decimal import Decimal
 
 from fastapi import status
 from sqlalchemy import and_, or_, select
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, joinedload, selectinload
 
 from app.core import tiempo
 from app.core.errores import ErrorAPI
@@ -63,6 +63,7 @@ def reserva_out(reserva: Reserva, momento: datetime) -> ReservaOut:
         cancelable=estado == "confirmada",
         creada_en=reserva.creada_en,
         cancelada_en=reserva.cancelada_en,
+        recordatorios=notificaciones.recordatorios_de(reserva, momento),
     )
 
 
@@ -127,7 +128,10 @@ def _consulta_del_usuario(usuario: Usuario):
     return (
         select(Reserva)
         .where(Reserva.usuario_id == usuario.id)
-        .options(joinedload(Reserva.espacio).joinedload(EspacioDeportivo.sede))
+        .options(
+            joinedload(Reserva.espacio).joinedload(EspacioDeportivo.sede),
+            selectinload(Reserva.notificaciones),
+        )
     )
 
 

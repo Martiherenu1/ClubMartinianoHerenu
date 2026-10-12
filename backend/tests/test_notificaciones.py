@@ -127,8 +127,8 @@ def test_envia_el_recordatorio_de_24h_con_texto_y_datos(db, ctx, firebase_falso)
     assert (resumen.revisadas, resumen.enviadas) == (1, 1)
     (push,) = firebase_falso.pushes
     assert push["token"] == "tok-ana-1"
-    assert push["titulo"] == "Recordatorio de reserva"
-    assert push["cuerpo"] == "Mañana a las 15:00 tenés Fútbol F5 en Sede Morón."
+    assert push["titulo"] == "Tenés una reserva mañana"
+    assert push["cuerpo"] == "Sede Morón · Fútbol F5 — jue 15 oct, 15:00"
     assert push["datos"] == {"tipo": "recordatorio_24h", "reserva_id": str(r.id)}
     assert notificaciones_de(db, r) == {"recordatorio_24h": "enviada"}
 
@@ -139,8 +139,12 @@ def test_envia_el_recordatorio_de_1h(db, ctx, firebase_falso):
     servicio.enviar_recordatorios(db)
 
     (push,) = firebase_falso.pushes
-    assert push["titulo"] == "Tu reserva empieza en 1 hora"
-    assert push["cuerpo"] == "A las 16:00: Fútbol F5 en Sede Morón. ¡Te esperamos!"
+    assert push["titulo"] == "Tu reserva comienza en 1 hora"
+    assert push["cuerpo"] == (
+        "Sede Morón · Fútbol F5\n"
+        "mié 14 oct, 16:00 a 17:00\n"
+        "Av. Rivadavia 17500, Morón"
+    )
     assert notificaciones_de(db, r) == {"recordatorio_1h": "enviada"}
 
 
@@ -149,7 +153,8 @@ def test_el_texto_dice_hoy_si_es_el_mismo_dia(db, ctx, firebase_falso):
 
     servicio.enviar_recordatorios(db)
 
-    assert firebase_falso.pushes[0]["cuerpo"].startswith("Hoy a las 20:00")
+    assert firebase_falso.pushes[0]["titulo"] == "Tenés una reserva hoy"
+    assert firebase_falso.pushes[0]["cuerpo"].endswith("mié 14 oct, 20:00")
 
 
 def test_no_manda_dos_veces_el_mismo_recordatorio(db, ctx, firebase_falso):
@@ -347,3 +352,124 @@ def test_una_reserva_cancelada_no_recibe_recordatorios(cliente, db, ctx, firebas
 
     assert resp.json()["revisadas"] == 0
     assert firebase_falso.pushes == []
+
+
+# ---------- Panel de notificaciones ----------
+
+PANEL = "/api/v1/notificaciones"
+
+
+def test_el_panel_lista_los_avisos_recibidos_del_mas_nuevo_al_mas_viejo(
+    cliente, db, ctx, firebase_falso
+):
+    r = reserva(db, ctx, HOY, 20)
+    servicio.enviar_recordatorios(db, AHORA)  # 24 h
+    servicio.enviar_recordatorios(db, datetime(2026, 10, 14, 19, 5, tzinfo=ZONA))  # 1 h
+
+    resp = cliente.get(PANEL, headers=auth_header("ana"))
+
+    assert resp.status_code == 200, resp.text
+    avisos = resp.json()
+    assert [a["tipo"] for a in avisos] == ["recordatorio_1h", "recordatorio_24h"]
+    assert avisos[0]["titulo"] == "Tu reserva comienza en 1 hora"
+    assert avisos[1]["titulo"] == "Tenés una reserva hoy"
+    assert {a["reserva_id"] for a in avisos} == {r.id}
+
+
+def test_el_panel_no_muestra_avisos_que_no_llegaron_ni_los_de_otros(
+    cliente, db, ctx, firebase_falso
+):
+    firebase_falso.tokens_con_error.add("tok-ana-1")
+    reserva(db, ctx, MANANA, 15)
+    servicio.enviar_recordatorios(db)  # error: no llegó
+
+    beto = _usuario(db, "beto", "30000002")
+    db.add(Dispositivo(usuario_id=beto.id, fcm_token="tok-beto"))
+    db.flush()
+    db.expire(beto)
+    reserva(db, ctx, MANANA, 15, usuario=beto)
+    servicio.enviar_recordatorios(db)  # a Beto sí le llega
+
+    assert cliente.get(PANEL, headers=auth_header("ana")).json() == []
+    assert len(cliente.get(PANEL, headers=auth_header("beto")).json()) == 1
+
+
+def test_el_panel_incluye_la_cancelacion_y_respeta_el_limite(cliente, db, ctx, firebase_falso):
+    r = reserva(db, ctx, MANANA, 18)
+    cliente.delete(f"/api/v1/reservas/{r.id}", headers=auth_header("ana"))
+
+    todos = cliente.get(PANEL, headers=auth_header("ana")).json()
+    assert [a["tipo"] for a in todos] == ["cancelacion"]
+    assert todos[0]["titulo"] == "Reserva cancelada"
+    assert cliente.get(f"{PANEL}?limite=0", headers=auth_header("ana")).status_code == 422
+
+
+def test_el_panel_requiere_sesion(cliente):
+    assert cliente.get(PANEL).status_code == 401
+
+
+# ---------- Recordatorios en el detalle de la reserva ----------
+
+def _detalle(cliente, r):
+    return cliente.get(f"/api/v1/reservas/{r.id}", headers=auth_header("ana")).json()
+
+
+def test_el_detalle_muestra_los_recordatorios_pendientes(cliente, db, ctx):
+    r = reserva(db, ctx, date(2026, 10, 20), 19)
+
+    recordatorios = _detalle(cliente, r)["recordatorios"]
+
+    assert [(x["tipo"], x["estado"]) for x in recordatorios] == [
+        ("24h", "pendiente"),
+        ("1h", "pendiente"),
+    ]
+    assert recordatorios[0]["programado_para"].startswith("2026-10-19T19:00:00")
+    assert recordatorios[1]["programado_para"].startswith("2026-10-20T18:00:00")
+
+
+def test_el_detalle_marca_enviado_lo_que_ya_salio(cliente, db, ctx, firebase_falso):
+    r = reserva(db, ctx, HOY, 20)
+    servicio.enviar_recordatorios(db, AHORA)  # sale el de 24 h
+
+    recordatorios = _detalle(cliente, r)["recordatorios"]
+
+    assert [(x["tipo"], x["estado"]) for x in recordatorios] == [
+        ("24h", "enviado"),
+        ("1h", "pendiente"),
+    ]
+
+
+def test_el_detalle_marca_no_enviado_si_paso_la_hora_y_no_salio(cliente, db, ctx):
+    # Empieza en 30 min y nunca corrió el cron.
+    r = reserva(db, ctx, HOY, 16)
+
+    recordatorios = _detalle(cliente, r)["recordatorios"]
+
+    assert [(x["tipo"], x["estado"]) for x in recordatorios] == [
+        ("24h", "no_enviado"),
+        ("1h", "no_enviado"),
+    ]
+
+
+def test_el_detalle_omite_los_recordatorios_que_no_aplican(cliente, db, ctx):
+    # El aviso de 24 h de una reserva de mañana a las 15:00 sale hoy a las 15:00.
+    # Quien reservó a las 15:25 lo hizo después: ese aviso no corresponde y queda
+    # solo el de 1 h.
+    r = reserva(db, ctx, MANANA, 15, creada_en=AHORA - timedelta(minutes=5))
+
+    recordatorios = _detalle(cliente, r)["recordatorios"]
+
+    assert [x["tipo"] for x in recordatorios] == ["1h"]
+
+
+def test_una_reserva_cancelada_no_tiene_recordatorios(cliente, db, ctx):
+    r = reserva(db, ctx, MANANA, 18, estado="cancelada")
+    assert _detalle(cliente, r)["recordatorios"] == []
+
+
+def test_la_lista_de_reservas_trae_los_recordatorios(cliente, db, ctx):
+    reserva(db, ctx, date(2026, 10, 20), 19)
+
+    lista = cliente.get("/api/v1/reservas", headers=auth_header("ana")).json()
+
+    assert [x["tipo"] for x in lista[0]["recordatorios"]] == ["24h", "1h"]

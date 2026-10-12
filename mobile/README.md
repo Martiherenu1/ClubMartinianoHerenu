@@ -208,3 +208,31 @@ duración, grilla de franjas, resumen y botón.
 - **Ícono adaptativo** (Android 8+): fondo `#050508` + monograma, sin recorte extra. Para
   versiones anteriores se usa el ícono completo con esquinas redondeadas.
 - **Pantalla de arranque:** fondo oscuro con el monograma centrado, en vez del blanco.
+
+## Notificaciones push (CU-24)
+
+Firebase Cloud Messaging con `firebase_messaging`. Todo vive mientras hay sesión
+(`PantallaPrincipal` crea el `ControladorNotificaciones`).
+
+- **Permiso:** al iniciar sesión, si falta, aparece el modal "Activá los recordatorios"
+  (Figma P-24.1-04) antes de pedir el permiso al sistema (Android 13+). "Ahora no" no vuelve
+  a molestar; la tarjeta "Recordatorios" de la Home deja activarlos después. Si el sistema
+  ya lo rechazó, la tarjeta explica cómo habilitarlos desde los ajustes del celular.
+- **Registro:** con el permiso concedido, el token de FCM se manda a
+  `POST /usuarios/me/dispositivos`; si FCM lo renueva, se vuelve a mandar. Si la API no
+  responde, la app sigue funcionando.
+- **Cerrar sesión (CU-02):** antes de salir, `DELETE /usuarios/me/dispositivos/{token}` y se
+  borra el token local, así un celular compartido no recibe avisos de otra cuenta.
+- **Tocar un aviso abre el detalle de la reserva** en los tres casos: app cerrada
+  (`getInitialMessage`), en segundo plano (`onMessageOpenedApp`) y abierta (cartel propio con
+  "Ver", porque FCM no muestra nada en primer plano).
+- **Campana de la Home:** `GET /notificaciones`. El punto lima marca avisos más nuevos que
+  el último que vio el usuario (se guarda en el celular). Tocar un aviso abre su reserva.
+- **Detalle de la reserva:** bloque "Recordatorios" con 24 h y 1 h antes y su estado.
+- **Android:** permiso `POST_NOTIFICATIONS`, canal `recordatorios` (importancia alta,
+  creado en `MainActivity`), ícono monocromo `ic_notificacion` y color de acento.
+- **Diferencia con el Figma:** la tarjeta "Recordatorios activos" no tiene "Configurar"
+  (no hay pantalla de ajustes); cuando están desactivados muestra "Activar".
+- **Sin botones en el aviso:** el Figma dibuja "Ver reserva / Descartar" dentro de la
+  notificación; FCM no los permite sin una librería de notificaciones locales. Tocar el aviso
+  hace lo mismo que "Ver reserva".

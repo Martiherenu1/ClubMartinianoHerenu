@@ -5,6 +5,32 @@ import '../core/api_client.dart';
 import '../core/formato.dart';
 import 'catalogo_api.dart';
 
+/// Un recordatorio de una reserva (24 h o 1 h antes) y si ya salió.
+class Recordatorio {
+  const Recordatorio({
+    required this.tipo,
+    required this.programadoPara,
+    required this.estado,
+  });
+
+  factory Recordatorio.fromJson(Map<String, dynamic> json) => Recordatorio(
+        tipo: json['tipo'] as String,
+        programadoPara: horaDelClub(json['programado_para'] as String),
+        estado: json['estado'] as String,
+      );
+
+  /// `24h` o `1h`.
+  final String tipo;
+
+  /// Cuándo corresponde enviarlo, en hora del club.
+  final DateTime programadoPara;
+
+  /// `pendiente`, `enviado` o `no_enviado`.
+  final String estado;
+
+  String get etiqueta => tipo == '24h' ? '24 horas antes' : '1 hora antes';
+}
+
 class Reserva {
   const Reserva({
     required this.id,
@@ -16,6 +42,7 @@ class Reserva {
     required this.precioTotal,
     required this.estado,
     required this.cancelable,
+    this.recordatorios = const [],
   });
 
   factory Reserva.fromJson(Map<String, dynamic> json) => Reserva(
@@ -28,6 +55,10 @@ class Reserva {
         precioTotal: (json['precio_total'] as num).toDouble(),
         estado: json['estado'] as String,
         cancelable: json['cancelable'] as bool,
+        recordatorios: [
+          for (final r in (json['recordatorios'] as List? ?? const []))
+            Recordatorio.fromJson(r as Map<String, dynamic>),
+        ],
       );
 
   final int id;
@@ -41,6 +72,9 @@ class Reserva {
   /// `confirmada`, `en_curso`, `completada` o `cancelada`.
   final String estado;
   final bool cancelable;
+
+  /// Recordatorios que corresponden a la reserva (vacío si está cancelada).
+  final List<Recordatorio> recordatorios;
 }
 
 enum VistaReservas { proximas, historial }

@@ -17,6 +17,7 @@ import '../../app/tema.dart';
 import '../../core/api_client.dart';
 import '../../core/errores.dart';
 import '../../core/servicio_auth.dart';
+import '../../core/servicio_notificaciones.dart';
 import '../../data/usuarios_api.dart';
 
 const _rojo = Color(0xFFDC2626);
@@ -76,7 +77,10 @@ class _FlujoEliminarCuentaState extends State<FlujoEliminarCuenta> {
     if (_terminando || !mounted) return;
     _terminando = true;
     final auth = context.read<ServicioAuth>();
+    final notificaciones = context.read<ServicioNotificaciones>();
     Navigator.of(context).popUntil((r) => r.isFirst);
+    // El backend ya borró los celulares de la cuenta; acá se descarta el token local.
+    await notificaciones.olvidarToken();
     await auth.cerrarSesion();
   }
 

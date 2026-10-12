@@ -89,7 +89,7 @@ Detalle completo en `modelo-datos.md`, `arquitectura.md`, `plan.md` y `casos-de-
       (Google Play), probado con una app de ejemplo
 - [ ] **Backend FastAPI (Fase 1, EN CURSO)**
 - [ ] App Flutter
-- [~] Notificaciones push: backend listo (`feat/push-backend`); falta la app.
+- [x] Notificaciones push (`feat/push-backend` y `feat/push-app`).
 - [ ] Deploy
 
 ## 7. Estado del backend
@@ -154,14 +154,18 @@ Detalle completo en `modelo-datos.md`, `arquitectura.md`, `plan.md` y `casos-de-
 - [x] **Push — backend** (`feat/push-backend`): `POST /tareas/recordatorios` (clave
   `X-Tareas-Clave`), recordatorios de 24 h y 1 h, aviso de cancelación, workflow de
   GitHub Actions cada 15 min. 135 tests; probado contra FCM real (token inválido).
-  Falta la app (registrar el token y abrir el detalle al tocar) y probar un push real.
+- [x] **Push — app** (`feat/push-app`): permiso con modal, registro del token,
+  tocar el aviso abre la reserva (cerrada, segundo plano y abierta), campana con panel,
+  tarjeta de recordatorios y bloque "Recordatorios" en el detalle. Backend: `GET
+  /notificaciones` y `recordatorios` en la reserva. Probado con un push real de FCM en el
+  emulador. 121 tests en la app, 145 en el backend.
 - [ ] Deploy en Render.
 
 ## 8. Próximos pasos inmediatos
 
-1. Martiniano mergea el PR `feat/push-backend`.
-2. Push — app (FCM, token, tocar → detalle).
-3. Deploy en Render y cierre (ver `docs/plan.md`).
+1. Martiniano mergea el PR `feat/push-app`.
+2. Deploy en Render (y activar el cron: `TAREAS_CLAVE` + secretos de GitHub).
+3. Cierre (ver `docs/plan.md`).
 
 ### Decisiones abiertas
 

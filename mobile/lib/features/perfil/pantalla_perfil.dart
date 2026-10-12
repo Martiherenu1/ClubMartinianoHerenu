@@ -16,6 +16,7 @@ import '../../core/servicio_auth.dart';
 import '../../data/usuarios_api.dart';
 import '../../widgets/carga_async.dart';
 import '../auth/validaciones.dart';
+import '../notificaciones/controlador_notificaciones.dart';
 import '../shell/navegacion_principal.dart';
 import 'pantalla_cambiar_password.dart';
 import 'pantalla_eliminar_cuenta.dart';
@@ -190,6 +191,14 @@ class _ContenidoPerfilState extends State<_ContenidoPerfil> {
         ),
       );
     }
+  }
+
+  /// CU-02: antes de salir se saca este celular de la cuenta, así no sigue
+  /// recibiendo avisos de reservas ajenas.
+  Future<void> _cerrarSesion() async {
+    final auth = context.read<ServicioAuth>();
+    await context.read<ControladorNotificaciones>().alCerrarSesion();
+    await auth.cerrarSesion();
   }
 
   void _pedirConfirmacionDeBaja() {
@@ -450,7 +459,7 @@ class _ContenidoPerfilState extends State<_ContenidoPerfil> {
       button: true,
       label: 'Cerrar sesión',
       child: InkWell(
-        onTap: () => context.read<ServicioAuth>().cerrarSesion(),
+        onTap: _cerrarSesion,
         borderRadius: BorderRadius.circular(12),
         child: Container(
           height: 48,

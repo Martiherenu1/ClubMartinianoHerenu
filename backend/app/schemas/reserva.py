@@ -5,6 +5,7 @@ from typing import Literal
 from pydantic import BaseModel, Field, field_validator
 
 from app.schemas.catalogo import EspacioOut
+from app.schemas.notificacion import RecordatorioOut
 
 EstadoVisible = Literal["confirmada", "en_curso", "completada", "cancelada"]
 
@@ -42,3 +43,5 @@ class ReservaOut(BaseModel):
     cancelable: bool
     creada_en: datetime
     cancelada_en: datetime | None
+    # Recordatorios de 24 h y 1 h antes que corresponden a esta reserva (CU-24).
+    recordatorios: list[RecordatorioOut] = []

@@ -137,6 +137,7 @@ protegidos: botón **Authorize** → pegar el ID token de Firebase.
 | GET | `/api/v1/reservas` | ✔ | 08 | Mis reservas: `?vista=proximas` (por defecto) o `historial`. |
 | GET | `/api/v1/reservas/{id}` | ✔ | 24 | Detalle de una reserva propia. |
 | DELETE | `/api/v1/reservas/{id}` | ✔ | 10 | Cancela (pasa a `cancelada`, libera el horario). 409 si ya empezó, terminó o estaba cancelada. Avisa por push. |
+| GET | `/api/v1/notificaciones` | ✔ | 24 | Avisos que recibió el usuario (panel de la campana): `?limite=` (20 por defecto, 50 máximo). |
 | POST | `/api/v1/tareas/recordatorios` | clave | 24 | Lo llama el cron: envía los recordatorios de 24 h y 1 h pendientes. Header `X-Tareas-Clave`. |
 
 ## Notificaciones push (CU-24)
@@ -156,6 +157,11 @@ protegidos: botón **Authorize** → pegar el ID token de Firebase.
   ellos termina sin hacer nada.
 - **Cada push lleva** `{"tipo": ..., "reserva_id": ...}` para que la app abra el detalle
   de la reserva al tocarlo.
+- **Textos:** son los del Figma ("Tu reserva comienza en 1 hora", "Tenés una reserva
+  mañana"…). Los mismos textos alimentan `GET /notificaciones`.
+- **Recordatorios en la reserva:** cada reserva trae `recordatorios`: los de 24 h y 1 h
+  que le corresponden, con `estado` `pendiente`, `enviado` o `no_enviado`. Un recordatorio
+  que habría salido antes de reservar no aparece. Las reservas canceladas no tienen.
 
 Probar a mano (con la clave de `.env`):
 

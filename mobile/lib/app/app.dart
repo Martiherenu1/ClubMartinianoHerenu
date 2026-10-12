@@ -4,25 +4,36 @@ import 'package:provider/provider.dart';
 
 import '../core/api_client.dart';
 import '../core/servicio_auth.dart';
+import '../core/servicio_notificaciones.dart';
 import '../features/auth/auth_gate.dart';
 import 'controlador_tema.dart';
 import 'tema.dart';
 
 /// Raíz de la app: provee la autenticación, el cliente de la API y el tema.
 class AppClub extends StatelessWidget {
-  const AppClub({super.key, required this.auth, this.api, this.tema});
+  const AppClub({
+    super.key,
+    required this.auth,
+    this.api,
+    this.tema,
+    this.notificaciones,
+  });
 
   final ServicioAuth auth;
 
   /// Se pueden inyectar en los tests.
   final ApiClient? api;
   final ControladorTema? tema;
+  final ServicioNotificaciones? notificaciones;
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         Provider<ServicioAuth>.value(value: auth),
+        Provider<ServicioNotificaciones>(
+          create: (_) => notificaciones ?? NotificacionesFirebase(),
+        ),
         // El cliente de la API pide el ID token vigente a Firebase en cada request.
         Provider<ApiClient>(
           create: (_) => api ?? ApiClient(proveedorToken: auth.idToken),
