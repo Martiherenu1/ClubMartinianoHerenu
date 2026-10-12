@@ -16,6 +16,11 @@ class Settings(BaseSettings):
     # - el contenido completo del JSON (Render, como variable de entorno secreta).
     FIREBASE_CREDENTIALS: str = ""
 
+    # Clave que tiene que mandar quien dispara las tareas programadas (el cron de
+    # GitHub Actions llama a POST /tareas/recordatorios). Vacía = el endpoint
+    # rechaza todo, así nadie puede dispararlo hasta que se configure.
+    TAREAS_CLAVE: str = ""
+
     # development | production
     ENVIRONMENT: str = "development"
 

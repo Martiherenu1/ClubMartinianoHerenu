@@ -1,8 +1,9 @@
 """Conexión con Firebase mediante el Admin SDK.
 
-El backend usa Firebase para dos cosas:
+El backend usa Firebase para tres cosas:
 - verificar el ID token que la app manda en cada request (¿quién es el usuario?);
-- más adelante, crear cuentas en el registro y enviar notificaciones push.
+- crear y borrar cuentas (registro y baja);
+- enviar notificaciones push con Cloud Messaging (CU-24).
 
 La inicialización es "perezosa": se hace la primera vez que se necesita, así la
 API puede arrancar (y los tests correr) aunque todavía no haya credenciales.
@@ -11,13 +12,21 @@ import json
 from functools import lru_cache
 
 import firebase_admin
-from firebase_admin import auth, credentials
+from firebase_admin import auth, credentials, exceptions, messaging
 
 from app.core.config import settings
 
 
 class FirebaseNoConfigurado(RuntimeError):
     """Falta FIREBASE_CREDENTIALS en el entorno."""
+
+
+class TokenDeDispositivoInvalido(Exception):
+    """FCM informa que el token del celular ya no existe (app desinstalada, etc.)."""
+
+
+class EnvioFallido(Exception):
+    """No se pudo entregar la notificación (red, cuota, servicio caído)."""
 
 
 @lru_cache
@@ -30,7 +39,10 @@ def obtener_app_firebase() -> firebase_admin.App:
         )
     # En Render se pega el contenido del JSON; en local, la ruta al archivo.
     origen = json.loads(valor) if valor.startswith("{") else valor
-    return firebase_admin.initialize_app(credentials.Certificate(origen))
+    # httpTimeout: si Firebase no responde, que el pedido no quede colgado minutos.
+    return firebase_admin.initialize_app(
+        credentials.Certificate(origen), options={"httpTimeout": 15}
+    )
 
 
 def verificar_id_token(token: str) -> dict:
@@ -68,3 +80,34 @@ def eliminar_usuario(uid: str) -> None:
         auth.delete_user(uid, app=obtener_app_firebase())
     except auth.UserNotFoundError:
         pass
+
+
+def enviar_notificacion(
+    token: str, titulo: str, cuerpo: str, datos: dict[str, str] | None = None
+) -> None:
+    """Envía un push a un celular (token de FCM).
+
+    `datos` viaja junto a la notificación: la app lo usa para abrir el detalle de
+    la reserva cuando el usuario toca el aviso. Todos los valores deben ser texto.
+
+    Lanza `TokenDeDispositivoInvalido` si el token ya no sirve (hay que borrarlo,
+    CU-24 FA3) y `EnvioFallido` ante cualquier otro problema.
+    """
+    mensaje = messaging.Message(
+        token=token,
+        notification=messaging.Notification(title=titulo, body=cuerpo),
+        data=datos or {},
+        # Prioridad alta: el recordatorio tiene que llegar aunque el celular duerma.
+        android=messaging.AndroidConfig(priority="high"),
+    )
+    try:
+        messaging.send(mensaje, app=obtener_app_firebase())
+    except (messaging.UnregisteredError, messaging.SenderIdMismatchError) as e:
+        raise TokenDeDispositivoInvalido(str(e)) from e
+    except exceptions.InvalidArgumentError as e:
+        # "The registration token is not a valid FCM registration token".
+        if "registration token" in str(e).lower():
+            raise TokenDeDispositivoInvalido(str(e)) from e
+        raise EnvioFallido(str(e)) from e
+    except (exceptions.FirebaseError, ValueError) as e:
+        raise EnvioFallido(str(e)) from e

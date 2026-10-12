@@ -25,6 +25,7 @@ from app.core.errores import ErrorAPI
 from app.models import EspacioDeportivo, Reserva, Usuario
 from app.schemas.reserva import ReservaIn, ReservaOut
 from app.services.catalogo import espacio_out, obtener_espacio_activo
+from app.services import notificaciones
 from app.services.disponibilidad import sumar_horas, se_superponen
 
 
@@ -194,4 +195,6 @@ def cancelar(db: Session, usuario: Usuario, reserva_id: int) -> ReservaOut:
     reserva.cancelada_en = momento
     db.commit()
     db.refresh(reserva)
+    # Aviso de cortesía: si falla no deshace la cancelación (CU-24.3).
+    notificaciones.avisar_cancelacion(db, reserva)
     return reserva_out(reserva, momento)

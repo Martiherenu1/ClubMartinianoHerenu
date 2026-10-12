@@ -95,7 +95,8 @@ backend/
 | Variable              | Descripción                                                |
 |-----------------------|------------------------------------------------------------|
 | `DATABASE_URL`        | Conexión a PostgreSQL (formato SQLAlchemy).                |
-| `FIREBASE_CREDENTIALS`| Ruta al JSON de la cuenta de servicio de Firebase (Auth).  |
+| `FIREBASE_CREDENTIALS`| Ruta al JSON de la cuenta de servicio de Firebase (Auth y push). En Render, el contenido del JSON. |
+| `TAREAS_CLAVE`        | Clave secreta del cron de recordatorios (header `X-Tareas-Clave`). Vacía = el endpoint rechaza todo. |
 | `ENVIRONMENT`         | `development` o `production`.                              |
 
 ## Tests
@@ -135,7 +136,36 @@ protegidos: botón **Authorize** → pegar el ID token de Firebase.
 | POST | `/api/v1/reservas` | ✔ | 09 | Reserva `{espacio_id, fecha, hora_inicio, duracion}`. 400 fuera de horario o pasado, 409 `HORARIO_OCUPADO`. |
 | GET | `/api/v1/reservas` | ✔ | 08 | Mis reservas: `?vista=proximas` (por defecto) o `historial`. |
 | GET | `/api/v1/reservas/{id}` | ✔ | 24 | Detalle de una reserva propia. |
-| DELETE | `/api/v1/reservas/{id}` | ✔ | 10 | Cancela (pasa a `cancelada`, libera el horario). 409 si ya empezó, terminó o estaba cancelada. |
+| DELETE | `/api/v1/reservas/{id}` | ✔ | 10 | Cancela (pasa a `cancelada`, libera el horario). 409 si ya empezó, terminó o estaba cancelada. Avisa por push. |
+| POST | `/api/v1/tareas/recordatorios` | clave | 24 | Lo llama el cron: envía los recordatorios de 24 h y 1 h pendientes. Header `X-Tareas-Clave`. |
+
+## Notificaciones push (CU-24)
+
+- **Registro del celular:** la app manda su token de FCM a `POST /usuarios/me/dispositivos`.
+  Si FCM informa que un token ya no existe, el backend lo borra.
+- **Recordatorios:** `POST /tareas/recordatorios` revisa las reservas confirmadas de hoy y
+  mañana y manda el aviso de **24 h** (desde 24 h antes y hasta 1 h antes) y el de **1 h**
+  (desde 1 h antes hasta que empieza). No avisa a quien reservó ya dentro de esa ventana.
+  Cada aviso queda en `notificacion` (una fila por reserva y tipo), así que se puede llamar
+  las veces que se quiera sin duplicar. Si el usuario no tenía celular registrado o Firebase
+  falló, se reintenta en la corrida siguiente mientras siga la ventana.
+- **Cancelación:** al cancelar una reserva se manda el aviso en el momento. Si el push
+  falla, la cancelación igual queda hecha.
+- **Quién lo dispara:** un workflow de GitHub Actions (`.github/workflows/recordatorios.yml`)
+  cada 15 minutos. Necesita los secretos `API_URL` y `TAREAS_CLAVE` del repositorio; sin
+  ellos termina sin hacer nada.
+- **Cada push lleva** `{"tipo": ..., "reserva_id": ...}` para que la app abra el detalle
+  de la reserva al tocarlo.
+
+Probar a mano (con la clave de `.env`):
+
+```bash
+curl -X POST http://localhost:8000/api/v1/tareas/recordatorios -H "X-Tareas-Clave: <TAREAS_CLAVE>"
+```
+
+> **Nota técnica:** el Admin SDK 7.x marca `Message.token` como obsoleto a favor de `fid`
+> (ID de instalación). Seguimos usando el token de FCM porque es lo que entrega el plugin
+> `firebase_messaging` de Flutter; sigue funcionando y solo muestra un aviso de deprecación.
 
 ## Autenticación
 

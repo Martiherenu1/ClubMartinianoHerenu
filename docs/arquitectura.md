@@ -113,6 +113,12 @@ En la app, una capa traduce cada caso a lo que diseñó el grupo:
   15 minutos y llama a `POST /tareas/recordatorios`, protegido por una clave secreta.
   La API busca las reservas confirmadas que entran en la ventana, envía el push con
   el Admin SDK y lo registra en `notificacion`, que impide los envíos duplicados.
+  - **Ventanas:** el aviso de 24 h va desde 24 h antes hasta 1 h antes; el de 1 h, desde
+    1 h antes hasta el inicio. No se avisa a quien reservó ya dentro de la ventana.
+  - **Reintentos:** si el usuario no tenía celular o Firebase falló, el aviso queda como
+    `no_enviada` / `error` y se reintenta en la corrida siguiente.
+  - **Protección:** el header `X-Tareas-Clave` se compara con `TAREAS_CLAVE`; sin clave
+    configurada el endpoint rechaza todo (401 `CLAVE_INVALIDA`).
 - **Aviso de cancelación (CU-24.3):** al cancelar una reserva, la API manda el push
   en el momento.
 - Al tocar la notificación, la app abre el **detalle de la reserva**.
