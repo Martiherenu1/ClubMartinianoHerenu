@@ -1,7 +1,7 @@
 # CONTEXTO DEL PROYECTO — ClubMartinianoHerenu
 
 > Archivo central de contexto. Se actualiza en cada sesión de trabajo.
-> Última actualización: 2026-10-11
+> Última actualización: 2026-10-12
 
 ## 1. Qué es
 
@@ -138,15 +138,20 @@ Detalle completo en `modelo-datos.md`, `arquitectura.md`, `plan.md` y `casos-de-
   con 4 pestañas (cada una con su Navigator), Home con próxima reserva y filtro por
   deporte, lista de sedes y canchas con filtros por deporte y tipo (CU-20). Fotos del
   Figma incluidas en la app. 59 tests. Probado en el emulador con la API local y el seed.
-- [ ] Horarios (CU-12), mis reservas, perfil, ícono.
+- [x] **Horarios (CU-12) y reserva (CU-09)** (`feat/horarios`): pantalla única con
+  cancha, fecha (14 días), duración, grilla de franjas (ocupadas deshabilitadas),
+  resumen y "Confirmar reserva"; pantalla "¡Reserva confirmada!" que redirige a
+  Reservas; la Home se recarga. 71 tests. Probado en el emulador con la API real.
+- [ ] Mis reservas, perfil, ícono.
 - [ ] Deploy en Render.
 
 ## 8. Próximos pasos inmediatos
 
-1. Martiniano mergea el PR `feat/home-sedes`.
-2. `feat/horarios`: CU-12 de Martiniano + Confirmar reserva + Reserva confirmada
-   (hoy `PantallaHorarios` es provisoria).
-3. `feat/mis-reservas` (próximas, historial, detalle, cancelar), `feat/perfil`, ícono.
+1. Martiniano mergea el PR `feat/horarios`.
+2. `feat/mis-reservas`: próximas, historial, detalle y cancelar (hoy `PantallaReservas`
+   es provisoria y la reserva recién hecha cae ahí).
+3. `feat/perfil` (ver/editar, cambiar contraseña, cerrar sesión, eliminar cuenta,
+   modo claro/oscuro) y `feat/icono`.
 
 ## 9. Cómo colaboramos
 

@@ -5,6 +5,8 @@
 /// [pedidos] para poder comprobar qué parámetros mandó la app.
 library;
 
+import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 
 import 'ayudas.dart';
@@ -139,15 +141,59 @@ Map<String, dynamic> reservaJson({int dias = 3}) {
 }
 
 class ServidorFalso {
-  ServidorFalso({this.reservas = const []});
+  ServidorFalso({
+    this.reservas = const [],
+    this.horasOcupadas = const {9, 11, 14, 17, 20},
+    this.diasLlenos = const {},
+  });
 
   /// Lo que devuelve `GET /reservas`.
   final List<Map<String, dynamic>> reservas;
+
+  /// Horas (de inicio) ya reservadas en cualquier cancha; define la grilla de
+  /// `GET /espacios/{id}/disponibilidad`.
+  final Set<int> horasOcupadas;
+
+  /// Fechas (`AAAA-MM-DD`) en las que no queda ningún turno.
+  final Set<String> diasLlenos;
+
+  /// Si es `true`, `POST /reservas` responde 409 `HORARIO_OCUPADO`.
+  bool conflicto = false;
+
+  /// Cuerpos recibidos en `POST /reservas`.
+  final reservasCreadas = <Map<String, dynamic>>[];
 
   /// Si se asigna, el servidor lanza este error en cada pedido.
   Object? fallo;
 
   final pedidos = <Uri>[];
+
+  Map<String, dynamic> _disponibilidad(Map<String, dynamic> espacio, String fecha, int d) {
+    final lleno = diasLlenos.contains(fecha);
+    final franjas = <Map<String, dynamic>>[];
+    for (var h = 8; h + d <= 23; h++) {
+      final ocupada = lleno || [for (var i = h; i < h + d; i++) i].any(horasOcupadas.contains);
+      String hora(int n) => '${n.toString().padLeft(2, '0')}:00:00';
+      franjas.add({
+        'hora_inicio': hora(h),
+        'hora_fin': hora(h + d),
+        'disponible': !ocupada,
+        'motivo': ocupada ? 'ocupado' : null,
+      });
+    }
+    final libres = franjas.where((f) => f['disponible'] == true).length;
+    final precio = espacio['precio_hora'] as num;
+    return {
+      'espacio': espacio,
+      'fecha': fecha,
+      'duracion': d,
+      'precio_hora': precio,
+      'precio_total': precio * d,
+      'cantidad_disponibles': libres,
+      'cantidad_no_disponibles': franjas.length - libres,
+      'franjas': franjas,
+    };
+  }
 
   /// Pedidos a [ruta] (sin el prefijo `/api/v1`).
   List<Uri> pedidosA(String ruta) =>
@@ -180,6 +226,30 @@ class ServidorFalso {
               (q['tipo'] == null || q['tipo'] == e['tipo']))
             e,
       ], 200);
+    }
+
+    final disp = RegExp(r'^/espacios/(\d+)/disponibilidad$').firstMatch(ruta);
+    if (disp != null) {
+      final id = int.parse(disp.group(1)!);
+      final espacio = espaciosMoronJson.firstWhere((e) => e['id'] == id);
+      return jsonResp(
+        _disponibilidad(espacio, q['fecha']!, int.parse(q['duracion'] ?? '1')),
+        200,
+      );
+    }
+
+    if (ruta == '/reservas' && r.method == 'POST') {
+      final cuerpo = jsonDecode(r.body) as Map<String, dynamic>;
+      reservasCreadas.add(cuerpo);
+      if (conflicto) {
+        return jsonResp({
+          'error': {
+            'codigo': 'HORARIO_OCUPADO',
+            'mensaje': 'El horario seleccionado ya no está disponible.',
+          },
+        }, 409);
+      }
+      return jsonResp(reservaJson(), 201);
     }
 
     if (ruta == '/reservas') return jsonResp(reservas, 200);

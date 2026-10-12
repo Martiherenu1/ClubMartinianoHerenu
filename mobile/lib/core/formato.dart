@@ -24,6 +24,13 @@ String formatearPrecio(num valor) {
 String formatearFechaCorta(DateTime fecha) =>
     '${_dias[fecha.weekday - 1]}, ${fecha.day} ${_meses[fecha.month - 1]}';
 
+/// `2026-10-12` → `mié` (tres letras, en minúscula).
+String diaSemanaCorto(DateTime fecha) => _dias[fecha.weekday - 1];
+
+/// `2026-10-05` → `2026-10-05`: el formato de fecha que usa la API.
+String fechaIso(DateTime f) =>
+    '${f.year.toString().padLeft(4, '0')}-${f.month.toString().padLeft(2, '0')}-${f.day.toString().padLeft(2, '0')}';
+
 /// `"08:00:00"` → `"08:00"`. Lo que manda la API trae segundos.
 String recortarHora(String hora) => hora.length >= 5 ? hora.substring(0, 5) : hora;
 

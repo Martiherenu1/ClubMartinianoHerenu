@@ -2,6 +2,8 @@
 /// Home abre una sede en la pestaña "Sedes").
 library;
 
+import 'package:flutter/foundation.dart';
+
 import '../../data/catalogo_api.dart';
 
 /// Posición de cada pestaña de la barra inferior.
@@ -20,4 +22,20 @@ class NavegacionPrincipal {
 
   /// Va a la pestaña Sedes y abre el detalle de la sede.
   final void Function(Sede sede) abrirSede;
+}
+
+/// Avisa que las reservas del usuario cambiaron (se creó o canceló una).
+///
+/// Las pestañas viven en un `IndexedStack`, así que no se reconstruyen solas:
+/// Home y Reservas escuchan este aviso y vuelven a pedir sus datos.
+class ReservasCambiadas extends ChangeNotifier {
+  int _version = 0;
+
+  /// Cambia cada vez que hay que recargar.
+  int get version => _version;
+
+  void avisar() {
+    _version++;
+    notifyListeners();
+  }
 }

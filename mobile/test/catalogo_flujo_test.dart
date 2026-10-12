@@ -208,7 +208,9 @@ void main() {
       await tester.tap(find.text('VER HORARIOS / RESERVAR').first);
       await tester.pumpAndSettle();
 
-      expect(find.text('HORARIOS'), findsOneWidget);
+      // Pantalla de horarios de la primera cancha (el detalle de cada flujo
+      // está en horarios_flujo_test.dart).
+      expect(find.text('HORARIO DISPONIBLE'), findsOneWidget);
       expect(find.text('Moron_Rivadavia_Futbol_F5_Cancha_1'), findsOneWidget);
     });
   });

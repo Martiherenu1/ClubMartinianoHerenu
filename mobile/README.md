@@ -119,7 +119,7 @@ AppClub
 ```
 PantallaPrincipal ── barra inferior, cada pestaña con su propio Navigator
  ├─ Inicio   → PantallaInicio   saludo, próxima reserva, filtro por deporte, sedes
- ├─ Sedes    → PantallaSedes ──→ PantallaSede ──→ PantallaHorarios (CU-12)
+ ├─ Sedes    → PantallaSedes ──→ PantallaSede ──→ PantallaHorarios (CU-12 + CU-09)
  ├─ Reservas → (provisoria)
  └─ Perfil   → (provisoria)
 ```
@@ -135,3 +135,21 @@ PantallaPrincipal ── barra inferior, cada pestaña con su propio Navigator
   sede: si algún día viene cargada, se usa esa.
 - **Modo claro y oscuro:** las tarjetas, bordes y texto salen de `ColoresDeContexto`
   (`app/tema.dart`), así cada pantalla respeta el modo elegido.
+
+## Horarios y reserva (CU-12 y CU-09)
+
+`PantallaHorarios` junta en una sola pantalla, como el Figma: cancha, fecha,
+duración, grilla de franjas, resumen y botón.
+
+- **Cada cambio consulta la API** (`GET /espacios/{id}/disponibilidad?fecha=&duracion=`):
+  cancha, fecha (hoy y 13 días más) o duración. La disponibilidad nunca se calcula en la app.
+- **Franjas:** se muestran todas; las `ocupado` o `pasado` quedan deshabilitadas y no se
+  pueden tocar. Debajo, el aviso "Algunos horarios están ocupados · N no disponibles".
+- **Sin turnos (FA4):** "No hay horarios disponibles" y el botón queda deshabilitado.
+- **Resumen:** `precio_hora × duración`, total y franja elegida. Es solo informativo.
+- **Confirmar:** `POST /reservas` y pantalla "¡Reserva confirmada!", que a los 2 s lleva
+  a la pestaña Reservas. La Home vuelve a pedir sus datos (`ReservasCambiadas`).
+- **Si alguien tomó el horario antes (409 `HORARIO_OCUPADO`):** aviso con el mensaje de
+  la API, se limpia la elección y la grilla se actualiza.
+- **Sin conexión o error del servidor:** tarjeta del Figma; al confirmar se conserva la
+  elección para reintentar.

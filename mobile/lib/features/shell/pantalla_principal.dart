@@ -38,6 +38,14 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
     abrirSede: _abrirSede,
   );
 
+  final _reservasCambiadas = ReservasCambiadas();
+
+  @override
+  void dispose() {
+    _reservasCambiadas.dispose();
+    super.dispose();
+  }
+
   void _irA(int pestana) {
     setState(() {
       _visitadas.add(pestana);
@@ -87,8 +95,11 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
 
   @override
   Widget build(BuildContext context) {
-    return Provider<NavegacionPrincipal>.value(
-      value: _navegacion,
+    return MultiProvider(
+      providers: [
+        Provider<NavegacionPrincipal>.value(value: _navegacion),
+        ChangeNotifierProvider<ReservasCambiadas>.value(value: _reservasCambiadas),
+      ],
       child: PopScope(
         canPop: false,
         onPopInvokedWithResult: _alVolver,
