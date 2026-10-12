@@ -88,3 +88,15 @@ depende del día en que se corren. Hay 22 tests:
 - **Día completo:** 0 disponibles (estado vacío, FA4).
 - **Otra sede:** Ramos Mejía abre de 09 a 22, así que da 13 franjas.
 - **Errores:** fecha pasada (400), duración 0 o 3, fecha mal escrita o faltante (422), cancha inexistente (404) y sin sesión (401).
+
+## Cómo lo usa la app
+
+`mobile/lib/features/horarios/pantalla_horarios.dart` (ver `mobile/README.md`):
+
+- Cada cambio de cancha, fecha o duración vuelve a llamar a este endpoint (FA1–FA3).
+- Se muestran **todas** las franjas: las `ocupado` y `pasado` quedan deshabilitadas, como
+  en el diseño propio del CU-12 ("Consulta"). El Figma grupal solo muestra las libres.
+- `cantidad_disponibles == 0` → estado vacío "No hay horarios disponibles" (FA4).
+- Error de red o 5xx → tarjeta "Error de conectividad" / "Error del servidor" con
+  "Reintentar" (FA5–FA6).
+- La reserva (`POST /reservas`) se hace desde la misma pantalla; es el CU-09.
