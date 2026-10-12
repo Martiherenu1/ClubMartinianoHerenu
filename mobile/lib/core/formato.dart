@@ -133,3 +133,14 @@ String formatearFechaNumerica(DateTime fecha) {
   String dos(int n) => n.toString().padLeft(2, '0');
   return '${dos(fecha.day)}/${dos(fecha.month)}/${fecha.year}';
 }
+
+/// La fecha y hora de un instante que la API manda con la zona del club
+/// (`2026-10-15T19:00:00-03:00` → 15/10 a las 19:00), sin convertirla a la zona
+/// del celular: así el aviso dice la hora del club aunque el celular esté en otra.
+DateTime horaDelClub(String iso) => DateTime.parse(iso.substring(0, 19));
+
+/// `2026-10-15 19:00` → `jue, 15 oct · 19:00`.
+String formatearFechaYHora(DateTime f) {
+  String dos(int n) => n.toString().padLeft(2, '0');
+  return '${formatearFechaCorta(f)} · ${dos(f.hour)}:${dos(f.minute)}';
+}
