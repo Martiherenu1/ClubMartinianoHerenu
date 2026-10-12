@@ -24,7 +24,8 @@ class NavegacionPrincipal {
   final void Function(Sede sede) abrirSede;
 }
 
-/// Avisa que las reservas del usuario cambiaron (se creó o canceló una).
+/// Avisa que los datos del usuario cambiaron: se creó o canceló una reserva, o
+/// se editó el perfil (la Home saluda por el nombre).
 ///
 /// Las pestañas viven en un `IndexedStack`, así que no se reconstruyen solas:
 /// Home y Reservas escuchan este aviso y vuelven a pedir sus datos.
