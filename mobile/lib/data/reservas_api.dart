@@ -67,6 +67,19 @@ class ReservasApi {
     return Reserva.fromJson(json as Map<String, dynamic>);
   }
 
+  /// `GET /reservas/{id}`: detalle de una reserva propia.
+  Future<Reserva> obtener(int id) async {
+    final json = await _api.get('/reservas/$id');
+    return Reserva.fromJson(json as Map<String, dynamic>);
+  }
+
+  /// `DELETE /reservas/{id}` (CU-10): la reserva pasa a `cancelada` y el horario
+  /// queda libre. Si ya empezó o terminó responde 409 `RESERVA_NO_CANCELABLE`.
+  Future<Reserva> cancelar(int id) async {
+    final json = await _api.delete('/reservas/$id');
+    return Reserva.fromJson(json as Map<String, dynamic>);
+  }
+
   /// `GET /reservas?vista=`. Las próximas vienen ordenadas de la más cercana a
   /// la más lejana.
   Future<List<Reserva>> listar({VistaReservas vista = VistaReservas.proximas}) async {

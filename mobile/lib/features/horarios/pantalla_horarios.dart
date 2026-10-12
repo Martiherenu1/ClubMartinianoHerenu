@@ -19,6 +19,7 @@ import '../../data/disponibilidad_api.dart';
 import '../../data/reservas_api.dart';
 import '../../widgets/carga_async.dart';
 import '../../widgets/imagen_catalogo.dart';
+import '../../widgets/selector_segmentado.dart';
 import '../shell/navegacion_principal.dart';
 import 'pantalla_reserva_confirmada.dart';
 
@@ -175,9 +176,10 @@ class _PantallaHorariosState extends State<PantallaHorarios> {
                   ),
                 ),
                 const _Etiqueta('Duración'),
-                _SelectorDuracion(
-                  duracion: _duracion,
-                  alElegir: (h) => _cambiar(() => _duracion = h),
+                SelectorSegmentado(
+                  opciones: const ['1 hora', '2 horas'],
+                  seleccionada: _duracion - 1,
+                  alElegir: (i) => _cambiar(() => _duracion = i + 1),
                 ),
                 const _Etiqueta('Horario disponible'),
                 // La clave vuelve a pedir la grilla cuando cambia cualquier filtro.
@@ -458,55 +460,6 @@ class _BotonFecha extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _SelectorDuracion extends StatelessWidget {
-  const _SelectorDuracion({required this.duracion, required this.alElegir});
-
-  final int duracion;
-  final ValueChanged<int> alElegir;
-
-  @override
-  Widget build(BuildContext context) {
-    Widget opcion(int horas, String texto) {
-      final activa = duracion == horas;
-      return Expanded(
-        child: Semantics(
-          button: true,
-          selected: activa,
-          child: GestureDetector(
-            onTap: () => alElegir(horas),
-            child: Container(
-              height: 41,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: activa ? Colores.lima : Colors.transparent,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                texto,
-                style: Tipografia.texto(
-                  size: 14,
-                  peso: FontWeight.w900,
-                  color: activa ? Colors.black : context.colorTextoApagado,
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: context.colorBoton,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: context.colorBordeBoton),
-      ),
-      child: Row(children: [opcion(1, '1 hora'), opcion(2, '2 horas')]),
     );
   }
 }

@@ -24,6 +24,18 @@ String formatearPrecio(num valor) {
 String formatearFechaCorta(DateTime fecha) =>
     '${_dias[fecha.weekday - 1]}, ${fecha.day} ${_meses[fecha.month - 1]}';
 
+const _diasLargos = [
+  'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo',
+];
+const _mesesLargos = [
+  'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto',
+  'septiembre', 'octubre', 'noviembre', 'diciembre',
+];
+
+/// `2026-08-15` → `sábado 15 de agosto`.
+String formatearFechaLarga(DateTime f) =>
+    '${_diasLargos[f.weekday - 1]} ${f.day} de ${_mesesLargos[f.month - 1]}';
+
 /// `2026-10-12` → `mié` (tres letras, en minúscula).
 String diaSemanaCorto(DateTime fecha) => _dias[fecha.weekday - 1];
 
