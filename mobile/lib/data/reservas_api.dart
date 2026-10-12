@@ -50,6 +50,23 @@ class ReservasApi {
 
   final ApiClient _api;
 
+  /// `POST /reservas` (CU-09). Si alguien tomó la franja antes responde 409
+  /// `HORARIO_OCUPADO`, que llega como [ErrorNegocio].
+  Future<Reserva> crear({
+    required int espacioId,
+    required DateTime fecha,
+    required String horaInicio,
+    required int duracion,
+  }) async {
+    final json = await _api.post('/reservas', body: {
+      'espacio_id': espacioId,
+      'fecha': fechaIso(fecha),
+      'hora_inicio': horaInicio,
+      'duracion': duracion,
+    });
+    return Reserva.fromJson(json as Map<String, dynamic>);
+  }
+
   /// `GET /reservas?vista=`. Las próximas vienen ordenadas de la más cercana a
   /// la más lejana.
   Future<List<Reserva>> listar({VistaReservas vista = VistaReservas.proximas}) async {
