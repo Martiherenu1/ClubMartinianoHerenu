@@ -257,7 +257,8 @@ def listar_avisos(db: Session, usuario: Usuario, limite: int) -> list[Notificaci
                 titulo=titulo,
                 cuerpo=cuerpo,
                 reserva_id=n.reserva_id,
-                enviada_en=n.enviada_en,
+                # Hora del club: la app muestra la hora tal cual viene.
+                enviada_en=n.enviada_en.astimezone(tiempo.ZONA),
             )
         )
     return avisos
