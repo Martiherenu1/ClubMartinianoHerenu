@@ -80,6 +80,7 @@ en la URL, todo en español.
 | GET | `/reservas` | ✔ | 08 | Reservas del usuario (`?vista=proximas` o `?vista=historial`). |
 | GET | `/reservas/{id}` | ✔ | 24 | Detalle (destino del toque en la notificación). |
 | DELETE | `/reservas/{id}` | ✔ | 10 | Cancela (pasa a `cancelada`, no se borra). |
+| GET | `/notificaciones` | ✔ | 24 | Avisos recibidos (panel de la campana en la Home). |
 | POST | `/tareas/recordatorios` | clave | 24 | Lo llama el cron: envía los recordatorios pendientes. |
 
 ## Errores
