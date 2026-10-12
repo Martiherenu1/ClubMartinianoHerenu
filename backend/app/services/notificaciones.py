@@ -25,6 +25,7 @@ from sqlalchemy.orm import Session, joinedload
 
 from app.core import firebase, tiempo
 from app.models import Dispositivo, EspacioDeportivo, Notificacion, Reserva, Usuario
+from app.schemas.notificacion import NotificacionOut, RecordatorioOut
 
 logger = logging.getLogger(__name__)
 
@@ -56,9 +57,21 @@ def _fecha_larga(fecha: date) -> str:
     return f"{_DIAS[fecha.weekday()]} {fecha.day} de {_MESES[fecha.month - 1]}"
 
 
-def _donde(reserva: Reserva) -> str:
+_DIAS_CORTOS = ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"]
+_MESES_CORTOS = [
+    "ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic",
+]
+
+
+def _fecha_corta(fecha: date) -> str:
+    """`2026-10-15` -> `jue 15 oct`."""
+    return f"{_DIAS_CORTOS[fecha.weekday()]} {fecha.day} {_MESES_CORTOS[fecha.month - 1]}"
+
+
+def _espacio(reserva: Reserva) -> str:
+    """`Sede Morón · Fútbol F5`."""
     e = reserva.espacio
-    return f"{e.deporte} {e.tipo} en Sede {e.sede.nombre}"
+    return f"Sede {e.sede.nombre} · {e.deporte} {e.tipo}"
 
 
 def _datos(reserva: Reserva, tipo: str) -> dict[str, str]:
@@ -67,18 +80,28 @@ def _datos(reserva: Reserva, tipo: str) -> dict[str, str]:
 
 
 def texto_recordatorio(reserva: Reserva, tipo: str, hoy: date) -> tuple[str, str]:
-    """Título y cuerpo del recordatorio de 24 h o de 1 h."""
-    hora = f"{reserva.hora_inicio:%H:%M}"
+    """Título y cuerpo del recordatorio de 24 h o de 1 h (textos del Figma, CU-24.1)."""
+    inicio = f"{reserva.hora_inicio:%H:%M}"
     if tipo == RECORDATORIO_1H:
+        sede = reserva.espacio.sede
         return (
-            "Tu reserva empieza en 1 hora",
-            f"A las {hora}: {_donde(reserva)}. ¡Te esperamos!",
+            "Tu reserva comienza en 1 hora",
+            f"{_espacio(reserva)}\n"
+            f"{_fecha_corta(reserva.fecha)}, {inicio} a {reserva.hora_fin:%H:%M}\n"
+            f"{sede.direccion}, {sede.nombre}",
         )
-    cuando = "Hoy" if reserva.fecha == hoy else "Mañana"
+    cuando = "hoy" if reserva.fecha == hoy else "mañana"
     return (
-        "Recordatorio de reserva",
-        f"{cuando} a las {hora} tenés {_donde(reserva)}.",
+        f"Tenés una reserva {cuando}",
+        f"{_espacio(reserva)} — {_fecha_corta(reserva.fecha)}, {inicio}",
     )
+
+
+def texto_de_aviso(reserva: Reserva, tipo: str, enviada_en: datetime) -> tuple[str, str]:
+    """Título y cuerpo de un aviso ya enviado, para el panel de notificaciones."""
+    if tipo == CANCELACION:
+        return texto_cancelacion(reserva)
+    return texto_recordatorio(reserva, tipo, enviada_en.astimezone(tiempo.ZONA).date())
 
 
 def texto_cancelacion(reserva: Reserva) -> tuple[str, str]:
@@ -177,6 +200,67 @@ def avisar_cancelacion(db: Session, reserva: Reserva) -> None:
 
 def _inicio(reserva: Reserva) -> datetime:
     return datetime.combine(reserva.fecha, reserva.hora_inicio, tzinfo=tiempo.ZONA)
+
+
+def recordatorios_de(reserva: Reserva, momento: datetime) -> list[RecordatorioOut]:
+    """Estado de los recordatorios de una reserva, para el detalle (CU-24.1).
+
+    Solo se listan los que aplican: si la reserva se hizo después de la hora en que
+    habría salido un recordatorio, ese no corresponde. Una reserva cancelada no
+    tiene recordatorios.
+    """
+    if reserva.estado == "cancelada":
+        return []
+    enviados = {n.tipo for n in reserva.notificaciones if n.resultado == "enviada"}
+    inicio = _inicio(reserva)
+    resultado: list[RecordatorioOut] = []
+    for tipo, etiqueta, antes in (
+        (RECORDATORIO_24H, "24h", timedelta(hours=24)),
+        (RECORDATORIO_1H, "1h", timedelta(hours=1)),
+    ):
+        programado = inicio - antes
+        if reserva.creada_en > programado:
+            continue
+        if tipo in enviados:
+            estado = "enviado"
+        elif momento < programado:
+            estado = "pendiente"
+        else:
+            estado = "no_enviado"
+        resultado.append(
+            RecordatorioOut(tipo=etiqueta, programado_para=programado, estado=estado)
+        )
+    return resultado
+
+
+def listar_avisos(db: Session, usuario: Usuario, limite: int) -> list[NotificacionOut]:
+    """Avisos que recibió el usuario, del más nuevo al más viejo (panel in-app)."""
+    filas = db.scalars(
+        select(Notificacion)
+        .join(Reserva)
+        .where(Reserva.usuario_id == usuario.id, Notificacion.resultado == "enviada")
+        .options(
+            joinedload(Notificacion.reserva)
+            .joinedload(Reserva.espacio)
+            .joinedload(EspacioDeportivo.sede)
+        )
+        .order_by(Notificacion.enviada_en.desc(), Notificacion.id.desc())
+        .limit(limite)
+    ).unique()
+    avisos = []
+    for n in filas:
+        titulo, cuerpo = texto_de_aviso(n.reserva, n.tipo, n.enviada_en)
+        avisos.append(
+            NotificacionOut(
+                id=n.id,
+                tipo=n.tipo,
+                titulo=titulo,
+                cuerpo=cuerpo,
+                reserva_id=n.reserva_id,
+                enviada_en=n.enviada_en,
+            )
+        )
+    return avisos
 
 
 def recordatorio_que_corresponde(reserva: Reserva, momento: datetime) -> str | None:
