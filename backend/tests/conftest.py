@@ -90,6 +90,10 @@ class FirebaseFalso:
         self.cuentas: dict[str, str] = {}  # email -> uid
         self.eliminados: list[str] = []
         self._creados = 0
+        # Push (CU-24): lo enviado y los celulares que fallan a propósito.
+        self.pushes: list[dict] = []
+        self.tokens_invalidos: set[str] = set()
+        self.tokens_con_error: set[str] = set()
 
     def crear_usuario(self, email: str, password: str, nombre_visible: str) -> str:
         if email in self.cuentas:
@@ -104,6 +108,17 @@ class FirebaseFalso:
     def eliminar_usuario(self, uid: str) -> None:
         self.eliminados.append(uid)
 
+    def enviar_notificacion(
+        self, token: str, titulo: str, cuerpo: str, datos: dict | None = None
+    ) -> None:
+        if token in self.tokens_invalidos:
+            raise firebase.TokenDeDispositivoInvalido("unregistered")
+        if token in self.tokens_con_error:
+            raise firebase.EnvioFallido("servicio caído")
+        self.pushes.append(
+            {"token": token, "titulo": titulo, "cuerpo": cuerpo, "datos": datos or {}}
+        )
+
 
 @pytest.fixture(autouse=True)
 def firebase_falso(monkeypatch) -> FirebaseFalso:
@@ -111,6 +126,7 @@ def firebase_falso(monkeypatch) -> FirebaseFalso:
     monkeypatch.setattr(firebase, "verificar_id_token", _verificador_falso)
     monkeypatch.setattr(firebase, "crear_usuario", falso.crear_usuario)
     monkeypatch.setattr(firebase, "eliminar_usuario", falso.eliminar_usuario)
+    monkeypatch.setattr(firebase, "enviar_notificacion", falso.enviar_notificacion)
     return falso
 
 
