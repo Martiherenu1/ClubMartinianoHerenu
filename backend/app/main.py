@@ -1,8 +1,8 @@
 """Punto de entrada de la API REST de ClubMartinianoHerenu.
 
 Crea la aplicación FastAPI, registra el formato único de errores y expone los
-endpoints de salud. Los routers de negocio (usuarios, sedes, espacios, reservas)
-se montan bajo /api/v1 a medida que se implementan.
+endpoints de salud. Los routers de negocio (usuarios, catálogo, disponibilidad,
+reservas, notificaciones y tareas) se montan bajo /api/v1 desde `app.api.router`.
 
 Ejecutar en desarrollo:
     uvicorn app.main:app --reload
