@@ -190,3 +190,21 @@ duración, grilla de franjas, resumen y botón.
   de Firebase y anonimiza el perfil) → "Gracias" → login. Si la baja falla, vuelve al
   perfil con el error y la cuenta sigue. Las respuestas de la encuesta no se guardan
   todavía (el backend no tiene dónde).
+
+## Ícono y nombre de la app
+
+- **Nombre:** `ClubMartinianoHerenu` (`android:label` del manifiesto y `MaterialApp.title`).
+  El lanzador de Android lo abrevia si no entra.
+- **Ícono:** monograma "CH" en lima (`#D4FF00`) sobre el fondo oscuro (`#050508`). Es un
+  diseño propio: el Figma del grupo no trae ícono de la app.
+- **Cómo se genera:** las imágenes salen de `tool/generar_icono.dart` (dibujado con formas,
+  no depende de tipografías) y se aplican a Android con `flutter_launcher_icons`.
+
+  ```bash
+  flutter test tool/generar_icono.dart      # assets/icon/icono.png y icono_primer_plano.png
+  dart run flutter_launcher_icons           # mipmaps y drawables de Android
+  ```
+
+- **Ícono adaptativo** (Android 8+): fondo `#050508` + monograma, sin recorte extra. Para
+  versiones anteriores se usa el ícono completo con esquinas redondeadas.
+- **Pantalla de arranque:** fondo oscuro con el monograma centrado, en vez del blanco.

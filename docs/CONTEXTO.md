@@ -148,14 +148,15 @@ Detalle completo en `modelo-datos.md`, `arquitectura.md`, `plan.md` y `casos-de-
 - [x] **Perfil** (`feat/perfil`): ver y editar datos (CU-05/06), modo claro/oscuro,
   cambiar contraseña (CU-04, Firebase), cerrar sesión y baja de la cuenta con la
   encuesta de salida (CU-07). 103 tests. Probado en el emulador con Firebase y API reales.
-- [ ] Ícono de la app.
+- [x] **Ícono y nombre** (`feat/icono`): monograma "CH" en lima sobre el fondo oscuro
+  del club, ícono adaptativo de Android, pantalla de arranque oscura. El nombre visible
+  es `ClubMartinianoHerenu`. El Figma no trae ícono: es un diseño propio, fácil de cambiar.
 - [ ] Deploy en Render.
 
 ## 8. Próximos pasos inmediatos
 
-1. Martiniano mergea el PR `feat/perfil`.
-2. `feat/icono` (ícono y nombre de la app).
-3. Deploy en Render, notificaciones push y cierre (ver `docs/plan.md`).
+1. Martiniano mergea el PR `feat/icono`.
+2. Deploy en Render, notificaciones push y cierre (ver `docs/plan.md`).
 
 ### Decisiones abiertas
 
