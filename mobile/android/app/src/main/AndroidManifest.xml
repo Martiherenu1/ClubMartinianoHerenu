@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Necesario en release: la API se consume por internet. -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Android 13+: permiso para mostrar los recordatorios de reservas (push). -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <application
         android:label="ClubMartinianoHerenu"
@@ -33,6 +35,17 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- Push (FCM): ícono, color y canal con los que se muestran los avisos. El
+             canal "recordatorios" lo crea MainActivity. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_notificacion" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/color_notificacion" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="recordatorios" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

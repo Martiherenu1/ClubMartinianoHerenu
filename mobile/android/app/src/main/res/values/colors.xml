@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ic_launcher_background">#050508</color>
+    <!-- Acento de la barra de notificaciones (el verde oliva del modo claro). -->
+    <color name="color_notificacion">#5E7000</color>
 </resources>
