@@ -1,7 +1,7 @@
 /// API falsa con el catálogo del club para los tests de pantallas.
 ///
-/// Responde como lo hace el backend: `GET /usuarios/me`, `/sedes`, `/espacios` y
-/// `/reservas`, con los mismos filtros por query. Guarda cada pedido en
+/// Responde como lo hace el backend: `/usuarios/me` (ver, editar y dar de baja),
+/// `/sedes`, `/espacios` y `/reservas`, con los mismos filtros por query. Guarda cada pedido en
 /// [pedidos] para poder comprobar qué parámetros mandó la app.
 library;
 
@@ -183,6 +183,21 @@ class ServidorFalso {
   /// Cuerpos recibidos en `POST /reservas`.
   final reservasCreadas = <Map<String, dynamic>>[];
 
+  /// Perfil del usuario (`GET /usuarios/me`); `PUT` lo modifica.
+  late final Map<String, dynamic> perfil = {...perfilJson};
+
+  /// Cuerpos recibidos en `PUT /usuarios/me`.
+  final perfilesEditados = <Map<String, dynamic>>[];
+
+  /// Si es `true`, `PUT /usuarios/me` responde 409 `DNI_YA_REGISTRADO`.
+  bool dniDuplicado = false;
+
+  /// Si es `true`, `DELETE /usuarios/me` responde 500.
+  bool bajaFalla = false;
+
+  /// `true` cuando la app dio de baja la cuenta (`DELETE /usuarios/me`).
+  bool cuentaEliminada = false;
+
   /// Si se asigna, el servidor lanza este error en cada pedido.
   Object? fallo;
 
@@ -226,7 +241,32 @@ class ServidorFalso {
     final ruta = r.url.path.replaceFirst('/api/v1', '');
     final q = r.url.queryParameters;
 
-    if (ruta == '/usuarios/me') return jsonResp(perfilJson, 200);
+    if (ruta == '/usuarios/me') {
+      if (r.method == 'PUT') {
+        final cuerpo = jsonDecode(r.body) as Map<String, dynamic>;
+        perfilesEditados.add(cuerpo);
+        if (dniDuplicado) {
+          return jsonResp({
+            'error': {
+              'codigo': 'DNI_YA_REGISTRADO',
+              'mensaje': 'Ese DNI ya está registrado en otra cuenta.',
+            },
+          }, 409);
+        }
+        perfil.addAll(cuerpo);
+        return jsonResp(perfil, 200);
+      }
+      if (r.method == 'DELETE') {
+        if (bajaFalla) {
+          return jsonResp({
+            'error': {'codigo': 'ERROR_INTERNO', 'mensaje': 'Error interno.'},
+          }, 500);
+        }
+        cuentaEliminada = true;
+        return http.Response('', 204);
+      }
+      return jsonResp(perfil, 200);
+    }
 
     if (ruta == '/sedes') {
       final deporte = q['deporte'];
