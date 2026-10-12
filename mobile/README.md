@@ -59,7 +59,7 @@ lib/
     ├── inicio/                   # Home
     ├── sedes/                    # todas las sedes, detalle de sede, tarjeta de cancha
     ├── horarios/                 # (provisoria) CU-12
-    ├── reservas/                 # (provisoria) mis reservas
+    ├── reservas/                 # mis reservas, detalle y cancelación
     └── perfil/                   # (provisoria) perfil
 ```
 
@@ -120,7 +120,7 @@ AppClub
 PantallaPrincipal ── barra inferior, cada pestaña con su propio Navigator
  ├─ Inicio   → PantallaInicio   saludo, próxima reserva, filtro por deporte, sedes
  ├─ Sedes    → PantallaSedes ──→ PantallaSede ──→ PantallaHorarios (CU-12 + CU-09)
- ├─ Reservas → (provisoria)
+ ├─ Reservas → PantallaReservas ──→ PantallaDetalleReserva ──→ PantallaCancelarReserva
  └─ Perfil   → (provisoria)
 ```
 
@@ -153,3 +153,19 @@ duración, grilla de franjas, resumen y botón.
   la API, se limpia la elección y la grilla se actualiza.
 - **Sin conexión o error del servidor:** tarjeta del Figma; al confirmar se conserva la
   elección para reintentar.
+
+## Mis reservas, detalle y cancelación (CU-08 y CU-10)
+
+- **Mis reservas:** pide `GET /reservas?vista=proximas` y `?vista=historial` en paralelo.
+  El selector "Próximas (N) / Historial" y el subtítulo "N activas · M historial" salen de
+  esas dos listas. Estados: Activa, En curso, Completada y Cancelada.
+- **Detalle:** `GET /reservas/{id}` (recibe solo el id, así sirve también para abrirlo
+  desde una notificación). Muestra fecha, horario, espacio, dirección y total.
+- **Cancelar:** pantalla de confirmación → `DELETE /reservas/{id}`. Solo se ofrece si
+  `cancelable` es `true`. La reserva pasa al historial como "Cancelada" y el horario
+  queda libre. Si ya empezó o terminó (409 `RESERVA_NO_CANCELABLE`) se avisa y la lista
+  se actualiza.
+- **Actualización entre pestañas:** al crear o cancelar una reserva, `ReservasCambiadas`
+  avisa y tanto la Home como Mis reservas vuelven a pedir sus datos.
+- **Cuenta sin perfil:** si la API responde `PERFIL_NO_ENCONTRADO` (la cuenta existe en
+  Firebase pero no en la base) la app cierra la sesión y vuelve al login.

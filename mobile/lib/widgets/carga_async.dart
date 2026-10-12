@@ -34,8 +34,10 @@ class _CargaAsyncState<T> extends State<CargaAsync<T>> {
   Future<T> _ejecutar() async {
     try {
       return await widget.cargar();
-    } on NoAutenticado {
-      if (mounted) await context.read<ServicioAuth>().cerrarSesion();
+    } on ErrorApp catch (e) {
+      if (_sesionInutilizable(e) && mounted) {
+        await context.read<ServicioAuth>().cerrarSesion();
+      }
       rethrow;
     }
   }
@@ -68,6 +70,12 @@ class _CargaAsyncState<T> extends State<CargaAsync<T>> {
   }
 }
 
+/// La sesión no sirve para usar la app: el token venció o la cuenta fue dada de
+/// baja (401), o la cuenta existe en Firebase pero no tiene perfil en la API
+/// (registro incompleto o perfil borrado). En ambos casos se vuelve al login.
+bool _sesionInutilizable(ErrorApp e) =>
+    e is NoAutenticado || (e is ErrorNegocio && e.codigo == 'PERFIL_NO_ENCONTRADO');
+
 /// Pantalla (o sección) que no pudo cargar: tarjeta de error + "Reintentar".
 class VistaFallo extends StatelessWidget {
   const VistaFallo({super.key, required this.error, required this.alReintentar});
@@ -78,7 +86,20 @@ class VistaFallo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final e = error is ErrorApp ? error as ErrorApp : const ErrorServidor();
-    final sinConexion = e is SinConexion;
+    // Sin conexión y error del servidor tienen su tarjeta del Figma; un error de
+    // negocio (ej. 404) muestra el mensaje que mandó la API.
+    final (titulo, mensaje) = switch (e) {
+      SinConexion() => (
+          'ERROR DE CONECTIVIDAD',
+          'Parece que no está conectado a ninguna red Wi-Fi. '
+              'Reestablezca su conexión e intente otra vez.',
+        ),
+      ErrorNegocio() => ('ERROR', e.mensaje),
+      _ => (
+          'ERROR DEL SERVIDOR',
+          'Ocurrió un error en el servidor. Intente nuevamente más tarde.',
+        ),
+    };
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -86,14 +107,7 @@ class VistaFallo extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TarjetaError(
-              titulo: sinConexion ? 'ERROR DE CONECTIVIDAD' : 'ERROR DEL SERVIDOR',
-              mensaje: sinConexion
-                  ? 'Parece que no está conectado a ninguna red Wi-Fi. '
-                      'Reestablezca su conexión e intente otra vez.'
-                  : 'Ocurrió un error en el servidor. Intente nuevamente más tarde.',
-              comoDialogo: false,
-            ),
+            TarjetaError(titulo: titulo, mensaje: mensaje, comoDialogo: false),
             const SizedBox(height: 16),
             FilledButton(onPressed: alReintentar, child: const Text('REINTENTAR')),
           ],
@@ -107,7 +121,7 @@ class VistaFallo extends StatelessWidget {
 /// 401 → vuelve al login; sin conexión o servidor → tarjeta; error de negocio →
 /// aviso con el mensaje de la API.
 Future<void> mostrarFallo(BuildContext context, Object error) async {
-  if (error is NoAutenticado) {
+  if (error is ErrorApp && _sesionInutilizable(error)) {
     await context.read<ServicioAuth>().cerrarSesion();
     return;
   }
