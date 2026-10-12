@@ -34,7 +34,18 @@ abstract interface class ServicioAuth {
 
   /// Manda el email para restablecer la contraseña.
   Future<void> enviarEnlaceRecuperacion(String email);
+
+  /// Cambia la contraseña de la cuenta con sesión (CU-04). Firebase pide
+  /// confirmar la contraseña actual antes de aceptar la nueva.
+  ///
+  /// Si la actual no es correcta lanza un [ErrorNegocio] con código
+  /// [codigoPasswordActualIncorrecta].
+  Future<void> cambiarPassword({required String actual, required String nueva});
 }
+
+/// Código del [ErrorNegocio] que se lanza al confirmar una contraseña actual
+/// equivocada.
+const codigoPasswordActualIncorrecta = 'PASSWORD_ACTUAL_INCORRECTA';
 
 /// Traduce un error de Firebase a un [ErrorApp] que la interfaz sabe mostrar.
 ErrorApp traducirErrorFirebase(FirebaseAuthException e) {
@@ -101,6 +112,34 @@ class AuthFirebase implements ServicioAuth {
       // Si el email no tiene cuenta se responde igual que si la tuviera: así no
       // se puede averiguar qué emails están registrados.
       if (e.code == 'user-not-found') return;
+      throw traducirErrorFirebase(e);
+    }
+  }
+
+  @override
+  Future<void> cambiarPassword({required String actual, required String nueva}) async {
+    final usuario = _auth.currentUser;
+    final email = usuario?.email;
+    if (usuario == null || email == null) {
+      throw const NoAutenticado('Tu sesión expiró. Volvé a iniciar sesión.');
+    }
+    try {
+      await usuario.reauthenticateWithCredential(
+        EmailAuthProvider.credential(email: email, password: actual),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
+        throw const ErrorNegocio(
+          codigo: codigoPasswordActualIncorrecta,
+          mensaje: 'La contraseña actual no es correcta.',
+          status: 400,
+        );
+      }
+      throw traducirErrorFirebase(e);
+    }
+    try {
+      await usuario.updatePassword(nueva);
+    } on FirebaseAuthException catch (e) {
       throw traducirErrorFirebase(e);
     }
   }
