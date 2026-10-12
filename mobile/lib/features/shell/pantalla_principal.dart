@@ -5,14 +5,22 @@
 /// cada pestaña conserva su pila al cambiar de una a otra.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/api_client.dart';
+import '../../core/servicio_notificaciones.dart';
 import '../../data/catalogo_api.dart';
+import '../../data/notificaciones_api.dart';
 import '../../widgets/barra_inferior.dart';
 import '../inicio/pantalla_inicio.dart';
+import '../notificaciones/controlador_notificaciones.dart';
+import '../notificaciones/widgets_notificaciones.dart';
 import '../perfil/pantalla_perfil.dart';
+import '../reservas/pantalla_detalle_reserva.dart';
 import '../reservas/pantalla_reservas.dart';
 import '../sedes/pantalla_sede.dart';
 import '../sedes/pantalla_sedes.dart';
@@ -36,14 +44,95 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
   late final _navegacion = NavegacionPrincipal(
     irA: _irA,
     abrirSede: _abrirSede,
+    abrirReserva: _abrirReserva,
   );
 
   final _reservasCambiadas = ReservasCambiadas();
 
+  late final ControladorNotificaciones _notificaciones;
+  final _suscripciones = <StreamSubscription<AvisoPush>>[];
+
+  @override
+  void initState() {
+    super.initState();
+    final servicio = context.read<ServicioNotificaciones>();
+    _notificaciones = ControladorNotificaciones(
+      servicio: servicio,
+      api: NotificacionesApi(context.read<ApiClient>()),
+    );
+    _suscripciones.addAll([
+      servicio.abiertos.listen(_alTocarAviso),
+      servicio.enPrimerPlano.listen(_alRecibirAviso),
+    ]);
+    unawaited(_iniciarNotificaciones(servicio));
+  }
+
   @override
   void dispose() {
+    for (final s in _suscripciones) {
+      s.cancel();
+    }
+    _notificaciones.dispose();
     _reservasCambiadas.dispose();
     super.dispose();
+  }
+
+  /// Registra el celular para recibir avisos y, si la app se abrió tocando uno,
+  /// va a esa reserva. Si falta el permiso, lo explica antes de pedirlo.
+  Future<void> _iniciarNotificaciones(ServicioNotificaciones servicio) async {
+    await _notificaciones.iniciar();
+    if (!mounted) return;
+    final inicial = await servicio.avisoInicial();
+    if (!mounted) return;
+    if (inicial != null) _alTocarAviso(inicial);
+    if (_notificaciones.ofrecerPermiso) {
+      final acepto = await mostrarModalPermiso(context);
+      if (!mounted) return;
+      if (acepto) {
+        await _notificaciones.habilitar();
+      } else {
+        await _notificaciones.posponer();
+      }
+    }
+  }
+
+  void _alTocarAviso(AvisoPush aviso) {
+    final id = aviso.reservaId;
+    if (id != null) _abrirReserva(id);
+  }
+
+  /// Con la app abierta FCM no muestra nada: se avisa con un cartel propio.
+  void _alRecibirAviso(AvisoPush aviso) {
+    if (!mounted) return;
+    _notificaciones.avisoRecibido();
+    final id = aviso.reservaId;
+    final primeraLinea = aviso.cuerpo?.split('\n').first;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 6),
+        content: Text(
+          [aviso.titulo, primeraLinea].whereType<String>().join('\n'),
+        ),
+        action: id == null
+            ? null
+            : SnackBarAction(label: 'VER', onPressed: () => _abrirReserva(id)),
+      ),
+    );
+  }
+
+  void _abrirReserva(int reservaId) {
+    _irA(Pestana.reservas);
+    // El navegador de la pestaña puede no existir todavía: se espera al frame.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final nav = _navegadores[Pestana.reservas].currentState;
+      if (nav == null) return;
+      nav.popUntil((r) => r.isFirst);
+      nav.push(
+        MaterialPageRoute<void>(
+          builder: (_) => PantallaDetalleReserva(reservaId: reservaId),
+        ),
+      );
+    });
   }
 
   void _irA(int pestana) {
@@ -99,6 +188,7 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
       providers: [
         Provider<NavegacionPrincipal>.value(value: _navegacion),
         ChangeNotifierProvider<ReservasCambiadas>.value(value: _reservasCambiadas),
+        ChangeNotifierProvider<ControladorNotificaciones>.value(value: _notificaciones),
       ],
       child: PopScope(
         canPop: false,

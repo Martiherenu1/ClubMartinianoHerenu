@@ -191,6 +191,20 @@ class _Detalle extends StatelessWidget {
             ],
           ),
         ),
+        if (r.recordatorios.isNotEmpty) ...[
+          const SizedBox(height: 22),
+          Text(
+            'RECORDATORIOS',
+            style: Tipografia.texto(
+              size: 9,
+              peso: FontWeight.w900,
+              color: context.colorAcento,
+              espaciado: 2.2,
+            ),
+          ),
+          const SizedBox(height: 10),
+          _BloqueRecordatorios(recordatorios: r.recordatorios),
+        ],
         if (r.cancelable) ...[
           const SizedBox(height: 24),
           Semantics(
@@ -240,6 +254,93 @@ class _Detalle extends StatelessWidget {
         'cancelada' => (texto: 'CANCELADA', color: const Color(0xFFF87171)),
         _ => (texto: estado.toUpperCase(), color: context.colorTextoSuave),
       };
+}
+
+/// "Recordatorios" del Figma (CU-24.1): cuándo sale cada aviso y si ya salió.
+class _BloqueRecordatorios extends StatelessWidget {
+  const _BloqueRecordatorios({required this.recordatorios});
+
+  final List<Recordatorio> recordatorios;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      decoration: BoxDecoration(
+        color: context.colorTarjeta,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: context.colorBordeTarjeta),
+      ),
+      child: Column(
+        children: [
+          for (final r in recordatorios) _FilaRecordatorio(recordatorio: r),
+        ],
+      ),
+    );
+  }
+}
+
+class _FilaRecordatorio extends StatelessWidget {
+  const _FilaRecordatorio({required this.recordatorio});
+
+  final Recordatorio recordatorio;
+
+  @override
+  Widget build(BuildContext context) {
+    final r = recordatorio;
+    final (texto, color) = switch (r.estado) {
+      'enviado' => ('Enviado', const Color(0xFF00BC7D)),
+      'no_enviado' => ('No enviado', const Color(0xFFD97706)),
+      _ => ('Pendiente', context.colorTextoSuave),
+    };
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 9),
+      child: Row(
+        children: [
+          Container(
+            width: 7,
+            height: 7,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: r.estado == 'enviado' ? context.colorAcento : context.colorTextoTenue,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  r.etiqueta,
+                  style: Tipografia.texto(
+                    size: 13,
+                    peso: FontWeight.w600,
+                    color: context.colorTexto,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  formatearFechaYHora(r.programadoPara),
+                  style: Tipografia.texto(size: 10.5, color: context.colorTextoSuave),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Text(
+              texto,
+              style: Tipografia.texto(size: 10, peso: FontWeight.w700, color: color),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _Separador extends StatelessWidget {

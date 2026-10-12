@@ -15,13 +15,21 @@ abstract final class Pestana {
 }
 
 class NavegacionPrincipal {
-  const NavegacionPrincipal({required this.irA, required this.abrirSede});
+  const NavegacionPrincipal({
+    required this.irA,
+    required this.abrirSede,
+    required this.abrirReserva,
+  });
 
   /// Cambia de pestaña (ver [Pestana]).
   final void Function(int pestana) irA;
 
   /// Va a la pestaña Sedes y abre el detalle de la sede.
   final void Function(Sede sede) abrirSede;
+
+  /// Va a la pestaña Reservas y abre el detalle de la reserva (lo usan los avisos
+  /// push y el panel de notificaciones).
+  final void Function(int reservaId) abrirReserva;
 }
 
 /// Avisa que los datos del usuario cambiaron: se creó o canceló una reserva, o

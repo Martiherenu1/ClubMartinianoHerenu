@@ -14,6 +14,7 @@ import '../../data/usuarios_api.dart';
 import '../../widgets/carga_async.dart';
 import '../../widgets/etiquetas.dart';
 import '../../widgets/imagen_catalogo.dart';
+import '../notificaciones/widgets_notificaciones.dart';
 import '../shell/navegacion_principal.dart';
 
 class _DatosInicio {
@@ -198,6 +199,8 @@ class _ContenidoInicioState extends State<_ContenidoInicio> {
                     ],
                   ),
                 ),
+              const SizedBox(height: 22),
+              const TarjetaRecordatorios(),
             ],
           ),
         ),
@@ -267,6 +270,8 @@ class _Cabecera extends StatelessWidget {
                     ],
                   ),
                 ),
+                const CampanaNotificaciones(),
+                const SizedBox(width: 10),
                 Semantics(
                   button: true,
                   label: 'Mi perfil',
