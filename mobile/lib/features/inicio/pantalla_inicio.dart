@@ -49,7 +49,11 @@ class PantallaInicio extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Cuando se crea o cancela una reserva, la clave cambia y la Home vuelve a
+    // pedir sus datos (la próxima reserva puede ser otra).
+    final version = context.watch<ReservasCambiadas>().version;
     return CargaAsync<_DatosInicio>(
+      key: ValueKey(version),
       cargar: () => _cargar(context),
       construir: (context, datos) => _ContenidoInicio(datos: datos),
     );
