@@ -142,16 +142,18 @@ Detalle completo en `modelo-datos.md`, `arquitectura.md`, `plan.md` y `casos-de-
   cancha, fecha (14 días), duración, grilla de franjas (ocupadas deshabilitadas),
   resumen y "Confirmar reserva"; pantalla "¡Reserva confirmada!" que redirige a
   Reservas; la Home se recarga. 71 tests. Probado en el emulador con la API real.
-- [ ] Mis reservas, perfil, ícono.
+- [x] **Mis reservas** (`feat/mis-reservas`): próximas e historial, detalle y cancelación
+  (CU-08 y CU-10). El detalle no muestra todavía "Recordatorios": llega con las
+  notificaciones. 83 tests. Probado en el emulador con la API real.
+- [ ] Perfil, ícono.
 - [ ] Deploy en Render.
 
 ## 8. Próximos pasos inmediatos
 
-1. Martiniano mergea el PR `feat/horarios`.
-2. `feat/mis-reservas`: próximas, historial, detalle y cancelar (hoy `PantallaReservas`
-   es provisoria y la reserva recién hecha cae ahí).
-3. `feat/perfil` (ver/editar, cambiar contraseña, cerrar sesión, eliminar cuenta,
+1. Martiniano mergea el PR `feat/mis-reservas`.
+2. `feat/perfil` (ver/editar, cambiar contraseña, cerrar sesión, eliminar cuenta,
    modo claro/oscuro) y `feat/icono`.
+3. Deploy en Render, notificaciones push y cierre (ver `docs/plan.md`).
 
 ## 9. Cómo colaboramos
 
