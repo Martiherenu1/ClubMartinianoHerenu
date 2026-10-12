@@ -121,34 +121,54 @@ final espaciosMoronJson = [
   ),
 ];
 
-/// Una reserva confirmada para dentro de [dias] días, 19:00 a 20:00 en Morón.
-Map<String, dynamic> reservaJson({int dias = 3}) {
+/// Una reserva de Morón de 19:00 a 20:00, para dentro de [dias] días.
+///
+/// Por defecto es confirmada y cancelable; `estado: 'completada'` o `'cancelada'`
+/// arma una del historial (con `dias` negativo si ya pasó).
+Map<String, dynamic> reservaJson({
+  int id = 10,
+  int dias = 3,
+  String estado = 'confirmada',
+  int espacio = 5,
+  num precio = 2500,
+}) {
   final f = DateTime.now().add(Duration(days: dias));
   String dos(int n) => n.toString().padLeft(2, '0');
   return {
-    'id': 10,
-    'espacio': espaciosMoronJson.last,
+    'id': id,
+    'espacio': espaciosMoronJson.firstWhere((e) => e['id'] == espacio),
     'fecha': '${f.year}-${dos(f.month)}-${dos(f.day)}',
     'hora_inicio': '19:00:00',
     'hora_fin': '20:00:00',
     'duracion': 1,
-    'precio_total': 2500,
-    'estado': 'confirmada',
-    'cancelable': true,
+    'precio_total': precio,
+    'estado': estado,
+    'cancelable': estado == 'confirmada',
     'creada_en': '2026-10-11T12:00:00Z',
-    'cancelada_en': null,
+    'cancelada_en': estado == 'cancelada' ? '2026-10-12T12:00:00Z' : null,
   };
 }
 
 class ServidorFalso {
   ServidorFalso({
-    this.reservas = const [],
+    List<Map<String, dynamic>> reservas = const [],
+    List<Map<String, dynamic>> historial = const [],
     this.horasOcupadas = const {9, 11, 14, 17, 20},
     this.diasLlenos = const {},
-  });
+  })  : reservasIniciales = reservas,
+        historialInicial = historial;
 
-  /// Lo que devuelve `GET /reservas`.
-  final List<Map<String, dynamic>> reservas;
+  /// Reservas próximas (`GET /reservas?vista=proximas`).
+  late final List<Map<String, dynamic>> reservas = [...reservasIniciales];
+
+  /// Historial (`GET /reservas?vista=historial`).
+  late final List<Map<String, dynamic>> historial = [...historialInicial];
+
+  final List<Map<String, dynamic>> reservasIniciales;
+  final List<Map<String, dynamic>> historialInicial;
+
+  /// Si es `true`, `DELETE /reservas/{id}` responde 409 `RESERVA_NO_CANCELABLE`.
+  bool noCancelable = false;
 
   /// Horas (de inicio) ya reservadas en cualquier cancha; define la grilla de
   /// `GET /espacios/{id}/disponibilidad`.
@@ -252,7 +272,42 @@ class ServidorFalso {
       return jsonResp(reservaJson(), 201);
     }
 
-    if (ruta == '/reservas') return jsonResp(reservas, 200);
+    if (ruta == '/reservas') {
+      final historial = q['vista'] == 'historial';
+      return jsonResp(historial ? this.historial : reservas, 200);
+    }
+
+    final una = RegExp(r'^/reservas/(\d+)$').firstMatch(ruta);
+    if (una != null) {
+      final id = int.parse(una.group(1)!);
+      final todas = [...reservas, ...historial];
+      final encontrada = todas.where((x) => x['id'] == id).firstOrNull;
+      if (encontrada == null) {
+        return jsonResp({
+          'error': {'codigo': 'RESERVA_NO_ENCONTRADA', 'mensaje': 'No encontramos esa reserva.'},
+        }, 404);
+      }
+      if (r.method == 'DELETE') {
+        if (noCancelable) {
+          return jsonResp({
+            'error': {
+              'codigo': 'RESERVA_NO_CANCELABLE',
+              'mensaje': 'No se puede cancelar una reserva que ya empezó.',
+            },
+          }, 409);
+        }
+        reservas.removeWhere((x) => x['id'] == id);
+        final cancelada = {
+          ...encontrada,
+          'estado': 'cancelada',
+          'cancelable': false,
+          'cancelada_en': '2026-10-12T12:00:00Z',
+        };
+        historial.insert(0, cancelada);
+        return jsonResp(cancelada, 200);
+      }
+      return jsonResp(encontrada, 200);
+    }
 
     return jsonResp({
       'error': {'codigo': 'NO_ENCONTRADO', 'mensaje': 'No existe.'},

@@ -227,6 +227,23 @@ void main() {
       expect(find.text('INICIAR SESIÓN'), findsOneWidget);
     });
 
+    testWidgets('cuenta sin perfil en la API (404): vuelve al login', (tester) async {
+      final servidor = ServidorFalso()
+        ..fallo = const ErrorNegocio(
+          codigo: 'PERFIL_NO_ENCONTRADO',
+          mensaje: 'Tu perfil no existe.',
+          status: 404,
+        );
+      await abrirApp(
+        tester,
+        auth: AuthFalso(inicial: _sesion),
+        servidor: servidor.responder,
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('INICIAR SESIÓN'), findsOneWidget);
+    });
+
     testWidgets('un 401 del backend en la Home cierra la sesión', (tester) async {
       final servidor = ServidorFalso()
         ..fallo = const NoAutenticado('Esta cuenta fue dada de baja.');
