@@ -89,7 +89,7 @@ Detalle completo en `modelo-datos.md`, `arquitectura.md`, `plan.md` y `casos-de-
       (Google Play), probado con una app de ejemplo
 - [ ] **Backend FastAPI (Fase 1, EN CURSO)**
 - [ ] App Flutter
-- [ ] Notificaciones push
+- [~] Notificaciones push: backend listo (`feat/push-backend`); falta la app.
 - [ ] Deploy
 
 ## 7. Estado del backend
@@ -151,12 +151,17 @@ Detalle completo en `modelo-datos.md`, `arquitectura.md`, `plan.md` y `casos-de-
 - [x] **Ícono y nombre** (`feat/icono`): monograma "CH" en lima sobre el fondo oscuro
   del club, ícono adaptativo de Android, pantalla de arranque oscura. El nombre visible
   es `ClubMartinianoHerenu`. El Figma no trae ícono: es un diseño propio, fácil de cambiar.
+- [x] **Push — backend** (`feat/push-backend`): `POST /tareas/recordatorios` (clave
+  `X-Tareas-Clave`), recordatorios de 24 h y 1 h, aviso de cancelación, workflow de
+  GitHub Actions cada 15 min. 135 tests; probado contra FCM real (token inválido).
+  Falta la app (registrar el token y abrir el detalle al tocar) y probar un push real.
 - [ ] Deploy en Render.
 
 ## 8. Próximos pasos inmediatos
 
-1. Martiniano mergea el PR `feat/icono`.
-2. Deploy en Render, notificaciones push y cierre (ver `docs/plan.md`).
+1. Martiniano mergea el PR `feat/push-backend`.
+2. Push — app (FCM, token, tocar → detalle).
+3. Deploy en Render y cierre (ver `docs/plan.md`).
 
 ### Decisiones abiertas
 
