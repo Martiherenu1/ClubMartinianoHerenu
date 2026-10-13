@@ -11,7 +11,7 @@ Permite a los usuarios:
 - Consultar sedes y espacios deportivos, filtrando por tipo (Fútbol, Paddle, Básquet…).
 - Consultar disponibilidad y **reservar** un espacio para una fecha y horario.
 - Ver sus reservas activas y su historial, y cancelar reservas.
-- Recibir notificaciones push de reservas próximas *(pendiente)*.
+- Recibir notificaciones push: recordatorios 24 h y 1 h antes y aviso de cancelación.
 
 ## Estructura del repositorio
 
@@ -36,6 +36,7 @@ ClubMartinianoHerenu/
 
 ## Documentación
 
+- [`docs/GUIA-DEL-CODIGO.md`](docs/GUIA-DEL-CODIGO.md) — **guía para entender todo el código**: capas, carpetas, archivos y flujos.
 - [`docs/CONTEXTO.md`](docs/CONTEXTO.md) — estado del proyecto, decisiones y próximos pasos.
 - [`docs/requerimientos.md`](docs/requerimientos.md) — resumen del enunciado.
 - [`docs/arquitectura.md`](docs/arquitectura.md) — arquitectura, endpoints y validaciones.
