@@ -5,8 +5,8 @@
 > Todo lo que dice acá está verificado contra el código (nombres de archivos,
 > funciones y códigos de error reales).
 >
-> Estado: Entrega 2 completa salvo el deploy en Render. 4 sedes, 22 canchas;
-> 145 casos de prueba en el backend y 121 en la app.
+> Estado: Entrega 2 completa y publicada en Render. 4 sedes, 22 canchas;
+> 149 casos de prueba en el backend y 121 en la app.
 
 ## Índice
 
@@ -95,7 +95,7 @@ flowchart LR
       AUTH["Authentication<br/>login, contraseñas"]
       FCM["Cloud Messaging<br/>push"]
     end
-    subgraph Nube["Servidor (hoy local, luego Render)"]
+    subgraph Nube["Servidor (Render)"]
       API["API FastAPI<br/>(backend/)"]
       DB[("PostgreSQL")]
     end
@@ -161,6 +161,7 @@ ClubMartinianoHerenu/
 │   └── tool/                script que genera el ícono
 ├── docs/                    documentación (CONTEXTO, arquitectura, modelo de datos…)
 ├── .github/workflows/       el cron de recordatorios
+├── render.yaml              receta del deploy: crea la base y la API en Render (ver docs/DEPLOY.md)
 └── design/                  (reservado para el Figma)
 ```
 
@@ -914,8 +915,8 @@ pytest                               # 145 casos
 ```bash
 cd mobile
 flutter pub get
-flutter run                          # emulador Android con Google Play
-flutter run --dart-define=API_URL=https://mi-api.onrender.com   # otra API
+flutter run                          # emulador Android; usa la API de Render
+flutter run --dart-define=API_URL=http://10.0.2.2:8000   # backend local
 flutter analyze
 flutter test                         # 121 tests
 ```
@@ -1002,8 +1003,9 @@ anonimiza, se borra de Firebase y el token viejo deja de servir (401).
 
 Es mejor decirlas vos antes de que te las pregunten:
 
-1. **Deploy en Render pendiente.** Hoy todo corre en local. La base gratuita de Render
-   dura 30 días, por eso se crea cerca de la fecha de entrega.
+1. **Render gratis tiene dos límites.** El servicio se duerme tras ~15 minutos sin tráfico
+   (la primera respuesta tarda ~1 minuto) y la base vence a los 30 días de creada
+   (se creó el 2026-11-08). Para la demo se despierta la API 5 minutos antes.
 2. **La encuesta de salida no guarda las respuestas.** El Figma la pide, pero el backend
    no tiene dónde recibirlas (CU-07 sin especificación en el material del grupo).
 3. **Precios y horario de San Justo estimados.** Los valores vistos en el Figma están
@@ -1012,9 +1014,7 @@ Es mejor decirlas vos antes de que te las pregunten:
 5. **Sin botones dentro del push** ("Ver reserva / Descartar" del Figma): FCM no los
    permite sin sumar una librería de notificaciones locales. Tocar el aviso hace lo mismo.
 6. **"Leído" de la campana vive en el celular**, no en el servidor.
-7. **`connectivity_plus` está declarado en `pubspec.yaml` pero no se usa**: la detección
-   de "sin conexión" se hace desde los errores del cliente HTTP. Es candidato a quitarse.
-8. **Los mensajes de Firebase no informan intentos restantes**, por eso al cambiar la
+7. **Los mensajes de Firebase no informan intentos restantes**, por eso al cambiar la
    contraseña el error no dice "te quedan N intentos" como el Figma.
-9. **El push usa `Message.token`**, que el Admin SDK 7.x marca como obsoleto a favor de
+8. **El push usa `Message.token`**, que el Admin SDK 7.x marca como obsoleto a favor de
    `fid`. Funciona y solo emite un aviso de deprecación.

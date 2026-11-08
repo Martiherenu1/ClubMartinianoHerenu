@@ -177,7 +177,7 @@ mobile/lib/
 └── widgets/                 # componentes del sistema de diseño (botones, tarjetas, errores)
 ```
 
-Paquetes previstos: `firebase_core`, `firebase_auth`, `firebase_messaging`, `http`,
-`provider` (estado simple), `connectivity_plus` (detectar sin internet),
+Paquetes: `firebase_core`, `firebase_auth`, `firebase_messaging`, `http`,
+`provider` (estado simple),
 `google_fonts` (Barlow Condensed, DM Mono, Inter), `intl` (fechas),
 `shared_preferences` (recordar el tema).

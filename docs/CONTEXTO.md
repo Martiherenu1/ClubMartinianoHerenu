@@ -1,7 +1,7 @@
 # CONTEXTO DEL PROYECTO — ClubMartinianoHerenu
 
 > Archivo central de contexto. Se actualiza en cada sesión de trabajo.
-> Última actualización: 2026-10-12
+> Última actualización: 2026-11-08
 
 ## 1. Qué es
 
@@ -20,13 +20,13 @@ Universidad de Morón (Docente: Marcelo Camicha).
 
 | Capa            | Tecnología                          | Estado        |
 |-----------------|-------------------------------------|---------------|
-| App móvil       | Flutter 3.47 (SDK en `C:\dev\flutter`) | Base creada (tema, API, errores) |
+| App móvil       | Flutter 3.47 (SDK en `C:\dev\flutter`) | **Completa** (lado usuario) |
 | Diseño UX/UI    | Figma grupal                        | **Terminado** (Entrega 1) |
-| Backend / API   | FastAPI (Python) + SQLAlchemy + Alembic | Modelos y migración inicial |
+| Backend / API   | FastAPI (Python) + SQLAlchemy + Alembic | **Completo** |
 | Base de datos   | PostgreSQL                          | Local en Docker |
 | Auth            | Firebase Authentication (email/password + reset) | Proyecto creado |
 | Push            | Firebase Cloud Messaging (FCM)      | **Dentro del alcance** |
-| Deploy API+DB   | Render                              | Por empezar   |
+| Deploy API+DB   | Render (Blueprint `render.yaml`)    | **Publicado** (`clubmartinianoherenu-api.onrender.com`) |
 | Docs API        | Swagger / OpenAPI (auto por FastAPI)| Automático    |
 
 ## 3. Decisiones tomadas
@@ -87,10 +87,11 @@ Detalle completo en `modelo-datos.md`, `arquitectura.md`, `plan.md` y `casos-de-
 - [x] Planificación de la Entrega 2 → PR #1, tag `v0.1.0`
 - [x] Entorno Flutter: SDK 3.47 + Android Studio + emulador `Medium_Phone_API_37.0`
       (Google Play), probado con una app de ejemplo
-- [ ] **Backend FastAPI (Fase 1, EN CURSO)**
-- [ ] App Flutter
+- [x] Backend FastAPI (Fase 1)
+- [x] App Flutter (lado usuario)
 - [x] Notificaciones push (`feat/push-backend` y `feat/push-app`).
-- [~] Deploy: `render.yaml` + `docs/DEPLOY.md` listos (`feat/deploy-render`); falta crear el Blueprint en Render.
+- [x] Deploy en Render (PR #20 y #21).
+- [ ] Cierre: guía de defensa, `v1.0.0`.
 
 ## 7. Estado del backend
 
@@ -159,13 +160,31 @@ Detalle completo en `modelo-datos.md`, `arquitectura.md`, `plan.md` y `casos-de-
   tarjeta de recordatorios y bloque "Recordatorios" en el detalle. Backend: `GET
   /notificaciones` y `recordatorios` en la reserva. Probado con un push real de FCM en el
   emulador. 121 tests en la app, 145 en el backend.
-- [~] Deploy: `render.yaml` + `docs/DEPLOY.md` listos (`feat/deploy-render`); falta crear el Blueprint en Render. en Render.
+- [x] **Deploy en Render** (`feat/deploy-render`, `feat/app-en-la-nube`): `render.yaml` crea la base
+  `club-db` y la API `clubmartinianoherenu-api` (plan gratuito, Virginia); al arrancar aplica
+  migraciones y seed. La app apunta por defecto a `https://clubmartinianoherenu-api.onrender.com`.
+  Paso a paso en `docs/DEPLOY.md`. La base gratuita se creó el 2026-11-08 y vence a los 30 días.
+  149 tests en el backend.
+- [x] **Cierre** (`chore/cierre`): se quitó `connectivity_plus` (no se usaba) y se escribió
+  `docs/GUIA-DE-DEFENSA.md` con el recorrido de la demo y las respuestas a las preguntas probables.
 
 ## 8. Próximos pasos inmediatos
 
-1. Martiniano mergea el PR `feat/push-app`.
-2. Deploy en Render (y activar el cron: `TAREAS_CLAVE` + secretos de GitHub).
-3. Cierre (ver `docs/plan.md`).
+1. Martiniano mergea el PR de cierre y se crea el tag `v1.0.0`.
+2. Cargar los secretos `API_URL` y `TAREAS_CLAVE` en GitHub (activa el cron de recordatorios).
+3. Ensayar la defensa con `docs/GUIA-DE-DEFENSA.md`; despertar la API 5 minutos antes.
+
+### Versiones (tags)
+
+| Tag | Qué incluye |
+|---|---|
+| `v0.1.0` | Plan de la Entrega 2 |
+| `v0.2.0` | Backend completo |
+| `v0.3.0` | App base, login, registro y recuperar contraseña |
+| `v0.4.0` | Home, sedes, horarios (CU-12) y reserva |
+| `v0.5.0` | Mis reservas, perfil e ícono |
+| `v0.6.0` | Notificaciones push |
+| `v0.7.0` | Deploy en Render y app en la nube |
 
 ### Decisiones abiertas
 
@@ -178,5 +197,6 @@ Detalle completo en `modelo-datos.md`, `arquitectura.md`, `plan.md` y `casos-de-
 ## 9. Cómo colaboramos
 
 - Este archivo (`CONTEXTO.md`) es la fuente de verdad del estado del proyecto.
-- Documentos de apoyo en `docs/`: `requerimientos.md`, `arquitectura.md`, `modelo-datos.md`, `plan.md`.
+- Documentos de apoyo en `docs/`: `requerimientos.md`, `arquitectura.md`, `modelo-datos.md`, `plan.md`,
+  `GUIA-DEL-CODIGO.md`, `DEPLOY.md` y `GUIA-DE-DEFENSA.md`.
 - Cuando traigas info nueva (capturas, código, dudas), la incorporamos y actualizamos este archivo.
