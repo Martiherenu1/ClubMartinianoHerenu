@@ -90,7 +90,7 @@ Detalle completo en `modelo-datos.md`, `arquitectura.md`, `plan.md` y `casos-de-
 - [ ] **Backend FastAPI (Fase 1, EN CURSO)**
 - [ ] App Flutter
 - [x] Notificaciones push (`feat/push-backend` y `feat/push-app`).
-- [ ] Deploy
+- [~] Deploy: `render.yaml` + `docs/DEPLOY.md` listos (`feat/deploy-render`); falta crear el Blueprint en Render.
 
 ## 7. Estado del backend
 
@@ -159,7 +159,7 @@ Detalle completo en `modelo-datos.md`, `arquitectura.md`, `plan.md` y `casos-de-
   tarjeta de recordatorios y bloque "Recordatorios" en el detalle. Backend: `GET
   /notificaciones` y `recordatorios` en la reserva. Probado con un push real de FCM en el
   emulador. 121 tests en la app, 145 en el backend.
-- [ ] Deploy en Render.
+- [~] Deploy: `render.yaml` + `docs/DEPLOY.md` listos (`feat/deploy-render`); falta crear el Blueprint en Render. en Render.
 
 ## 8. Próximos pasos inmediatos
 
