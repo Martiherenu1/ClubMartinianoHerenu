@@ -69,15 +69,17 @@ En la pestaña **SSL** poner el modo `Require`. La conexión externa está habil
 para cualquier IP en el Blueprint; conviene restringirla o borrar la base cuando
 termine la defensa.
 
-## 6. Apuntar la app a la nube
+## 6. La app apunta a la nube
 
-La app lee la URL de la API con `--dart-define`:
+La URL de Render es el valor por defecto de `Config.apiUrl`
+(`mobile/lib/core/config.dart`), así que alcanza con `flutter run`. Si el servicio
+se llamara distinto, se cambia ahí o se pasa por línea de comandos:
 
 ```bash
-flutter run --dart-define=API_URL=https://clubmartinianoherenu-api.onrender.com
+flutter run --dart-define=API_URL=https://otra-url.onrender.com
 ```
 
-Sin ese parámetro apunta a la API local (`http://10.0.2.2:8000`).
+Para probar contra el backend local: `--dart-define=API_URL=http://10.0.2.2:8000`.
 
 ## Antes de la demo
 

@@ -17,13 +17,15 @@ flutter pub get
 flutter run
 ```
 
-Por defecto la app apunta a la API local en `http://10.0.2.2:8000`: `10.0.2.2` es
-la dirección con la que el emulador de Android ve el `localhost` de la PC.
+Por defecto la app apunta a la API publicada en Render
+(`https://clubmartinianoherenu-api.onrender.com`). Si la API estuvo un rato sin uso
+se "duerme" y la primera respuesta tarda cerca de un minuto: la app espera hasta 60 s.
 
-Para apuntar a otra API (por ejemplo la de Render):
+Para probar contra el backend local (`10.0.2.2` es la dirección con la que el
+emulador de Android ve el `localhost` de la PC):
 
 ```bash
-flutter run --dart-define=API_URL=https://mi-api.onrender.com
+flutter run --dart-define=API_URL=http://10.0.2.2:8000
 ```
 
 > El HTTP sin cifrar solo está permitido en la versión **debug**
