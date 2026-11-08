@@ -18,9 +18,9 @@
 |---|---|---|---|
 | 0. Preparación | 10–12/10 | Docs del plan (este PR). Instalar Flutter SDK, Android Studio y emulador. Instalar `gh` (GitHub CLI). Revisar el proyecto de Firebase. | `v0.1.0` |
 | 1. Backend | 12–17/10 | Modelos + migraciones, seed, auth con Firebase, catálogo, disponibilidad (CU-12), reservas, usuarios, errores, tests. | `v0.2.0` |
-| 2. Deploy temprano | 18–19/10 | PostgreSQL + API en Render, secretos, seed en producción. Swagger online. | `v0.3.0` |
-| 3. App Flutter | 18–28/10 | Proyecto, tema y componentes del Figma, auth, home, sedes, horarios, reservar, mis reservas, perfil, errores, ícono. | `v0.4.0`–`v0.6.0` |
-| 4. Notificaciones | 27–30/10 | FCM en la app, registro de token, recordatorios con cron, aviso de cancelación, tocar → detalle. | `v0.7.0` |
+| 2. Deploy temprano | 18–19/10 | PostgreSQL + API en Render, secretos, seed en producción. Swagger online. | `v0.7.0` (se hizo al final) |
+| 3. App Flutter | 18–28/10 | Proyecto, tema y componentes del Figma, auth, home, sedes, horarios, reservar, mis reservas, perfil, errores, ícono. | `v0.3.0`–`v0.5.0` |
+| 4. Notificaciones | 27–30/10 | FCM en la app, registro de token, recordatorios con cron, aviso de cancelación, tocar → detalle. | `v0.6.0` |
 | 5. Cierre | 31/10–02/11 | README de backend y app, revisión de Swagger, prueba completa en emulador, ZIPs, guía de defensa. | `v1.0.0` |
 
 > Se despliega **antes** de terminar la app para que, cuando la app esté lista, ya
@@ -28,6 +28,12 @@
 >
 > ⚠️ La base gratuita de Render vence a los 30 días de creada: se crea el 18/10 para
 > que dure hasta la defensa.
+
+> **Cómo quedaron los tags:** el deploy se postergó y se hizo al final, así que los tags
+> se numeraron en el orden real del trabajo: `v0.3.0` auth, `v0.4.0` horarios y reserva,
+> `v0.5.0` mis reservas, perfil e ícono, `v0.6.0` push y `v0.7.0` deploy en Render.
+> Si se hubieran respetado los números de arriba, el tag más bajo habría quedado en el
+> commit más nuevo.
 
 ## Fase 1 — Backend (PRs previstos)
 
