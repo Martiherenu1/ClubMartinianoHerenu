@@ -99,6 +99,9 @@ backend/
 | `TAREAS_CLAVE`        | Clave secreta del cron de recordatorios (header `X-Tareas-Clave`). Vacía = el endpoint rechaza todo. |
 | `ENVIRONMENT`         | `development` o `production`.                              |
 
+En Render la URL de la base (`postgres://…`) se adapta sola al formato de SQLAlchemy.
+El deploy completo está en [`docs/DEPLOY.md`](../docs/DEPLOY.md).
+
 ## Tests
 
 Con la base de Docker levantada:
