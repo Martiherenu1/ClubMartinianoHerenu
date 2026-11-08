@@ -1,0 +1,44 @@
+# Blueprint de Render: crea la base de datos y la API juntas.
+# Se usa desde el panel: New > Blueprint > elegir este repositorio.
+# Paso a paso para quien lo despliega: docs/DEPLOY.md
+databases:
+  - name: club-db
+    plan: free
+    region: virginia # la más cercana a Argentina entre las de Render
+    databaseName: clubdb
+    user: club
+    # Permite conectar pgAdmin desde la PC durante la defensa. Después conviene
+    # restringirla o borrar la base.
+    ipAllowList:
+      - source: 0.0.0.0/0
+        description: pgAdmin de la demo
+
+services:
+  - type: web
+    name: clubmartinianoherenu-api
+    runtime: python
+    plan: free
+    region: virginia # tiene que ser la misma que la de la base
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    # El plan gratuito no tiene "pre-deploy", así que las migraciones y el catálogo
+    # se aplican al arrancar. Las dos operaciones son idempotentes: si no hay nada
+    # nuevo, no cambian nada.
+    startCommand: alembic upgrade head && python -m app.seed && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.7
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: club-db
+          property: connectionString
+      # Render genera una clave aleatoria; se la copia al secreto TAREAS_CLAVE de GitHub.
+      - key: TAREAS_CLAVE
+        generateValue: true
+      # Contenido completo del JSON de la cuenta de servicio de Firebase.
+      # Render lo pide al crear el Blueprint; no se guarda en el repositorio.
+      - key: FIREBASE_CREDENTIALS
+        sync: false
